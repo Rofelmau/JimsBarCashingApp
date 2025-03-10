@@ -1,0 +1,42 @@
+# Build Ordner
+/build/
+/*.pro.user
+/*.pro.user.*
+
+# CMake Dateien
+CMakeCache.txt
+CMakeFiles/
+CMakeLists.txt.user
+CMakeLists.txt.searchpath
+
+# Qt spezifische Dateien
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+*.moc
+
+# Conan-Umgebung
+conan_env/
+conanfile.txt.lock
+conanbuildinfo.txt
+conanbuildinfo.pdb
+
+# System spezifische Dateien
+*.DS_Store       # macOS
+Thumbs.db         # Windows
+
+# IDE und Editor spezifische Dateien
+.vscode/
+.idea/
+
+# Ausführbare Dateien
+*.exe
+*.out
+*.app
+
+# Log-Dateien
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.bak
