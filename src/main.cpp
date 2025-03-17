@@ -1,5 +1,3 @@
-#include "CocktailModel.h"
-
 #include "DatabaseManager.h"
 
 #include "CocktailRepository.h"

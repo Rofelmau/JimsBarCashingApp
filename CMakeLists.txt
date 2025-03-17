@@ -5,7 +5,7 @@ project(MyProject)
 set(CMAKE_CXX_STANDARD 17)
 
 # Find Qt5 packages
-find_package(Qt5 COMPONENTS Core Sql REQUIRED)
+find_package(Qt5 COMPONENTS Core Sql Widgets Qml REQUIRED)  # Add Qml here
 
 # Add subdirectories
 add_subdirectory(src)
@@ -16,7 +16,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src/database)
 include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
 include_directories(${CMAKE_SOURCE_DIR}/src/managers)  # Add this line
 
-configure_file(${CMAKE_SOURCE_DIR}/src/cocktails.json ${CMAKE_BINARY_DIR}/cocktails.json COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/src/database/schema.sql ${CMAKE_BINARY_DIR}/schema.sql COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/src/database/data.sql ${CMAKE_BINARY_DIR}/data.sql COPYONLY)
 
@@ -38,3 +37,7 @@ add_custom_command(
 
 # Ensure the database is created before building the project
 add_custom_target(create_database ALL DEPENDS ${CMAKE_BINARY_DIR}/cocktails.db)
+
+# Add Google Test
+enable_testing()
+add_subdirectory(tests)

@@ -18,9 +18,12 @@ Cocktail::Cocktail(const Cocktail &other)
 Cocktail &Cocktail::operator=(const Cocktail &other)
 {
     qWarning() << "Custom assignment operator called!";
-    Cocktail *ret = new Cocktail( other.getId(), other.getName());
-    ret->setIngredients(other.getIngredients());
-    return *ret;
+    if (this != &other) {
+        id = other.id;
+        name = other.name;
+        ingredients = other.ingredients;
+    }
+    return *this;
 }
 
 int Cocktail::getId() const

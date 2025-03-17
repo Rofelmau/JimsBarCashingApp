@@ -16,7 +16,6 @@ add_subdirectory(controllers)
 add_executable(MyProject 
     main.cpp
     DatabaseManager.cpp
-    CocktailModel.cpp
 )
 
 # Add QML resources
