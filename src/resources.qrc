@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>fallback.png</file>
+        <file>assets/images/fallback.png</file>
+        <file>screens/HomeScreen.qml</file>
     </qresource>
 </RCC>

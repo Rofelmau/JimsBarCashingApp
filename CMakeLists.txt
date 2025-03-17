@@ -1,33 +1,40 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
-project(MyQtApp LANGUAGES CXX)
+project(MyProject)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
 
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+# Find Qt5 packages
+find_package(Qt5 COMPONENTS Core Sql REQUIRED)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+# Add subdirectories
+add_subdirectory(src)
 
-set(SOURCES
-    src/main.cpp
-    src/cocktailmodel.cpp
-)
-
-set(HEADERS
-    src/cocktailmodel.h
-)
-
-qt5_add_resources(QT_RESOURCES src/resources.qrc src/qml.qrc)
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src/database)
+include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
+include_directories(${CMAKE_SOURCE_DIR}/src/managers)  # Add this line
 
 configure_file(${CMAKE_SOURCE_DIR}/src/cocktails.json ${CMAKE_BINARY_DIR}/cocktails.json COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/database/schema.sql ${CMAKE_BINARY_DIR}/schema.sql COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/database/data.sql ${CMAKE_BINARY_DIR}/data.sql COPYONLY)
 
-add_executable(MyQtApp
-    ${SOURCES}
-    ${HEADERS}
-    ${QT_RESOURCES}
+message(STATUS "Schema SQL file: ${CMAKE_BINARY_DIR}/schema.sql")
+message(STATUS "Data SQL file: ${CMAKE_BINARY_DIR}/data.sql")
+
+set(SCHEMA_FILE "${CMAKE_BINARY_DIR}/schema.sql")
+set(DATA_FILE "${CMAKE_BINARY_DIR}/data.sql")
+set(DB_FILE "${CMAKE_BINARY_DIR}/cocktails.db")
+
+# Custom command to create the database
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/cocktails.db
+    COMMAND sqlite3 ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/schema.sql
+    COMMAND sqlite3 ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/data.sql
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/database/schema.sql ${CMAKE_SOURCE_DIR}/src/database/data.sql
+    COMMENT "Creating and populating the database"
 )
 
-target_link_libraries(MyQtApp Qt5::Core Qt5::Quick)
+# Ensure the database is created before building the project
+add_custom_target(create_database ALL DEPENDS ${CMAKE_BINARY_DIR}/cocktails.db)

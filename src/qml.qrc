@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+
+        <file>components/ChangeSettingsDialog.qml</file>
+        <file>components/SelectCocktailDialog.qml</file>
+        <file>components/TileButton.qml</file>
+
+        <file>screens/CheckoutScreen.qml</file>
+        <file>screens/CocktailsConfigurationScreen.qml</file>
+        <file>screens/GeneralSettingsScreen.qml</file>
+        <file>screens/HomeScreen.qml</file>
+        <file>screens/SettingsScreen.qml</file>
+        <file>screens/StatisticsScreen.qml</file>
     </qresource>
 </RCC>

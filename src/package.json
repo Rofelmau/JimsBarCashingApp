@@ -1,0 +1,11 @@
+{
+    "name": "my-qml-project",
+    "version": "1.0.0",
+    "description": "A QML project with multiple screens and a database",
+    "main": "main.qml",
+    "scripts": {
+        "start": "qmlscene main.qml"
+    },
+    "author": "Your Name",
+    "license": "MIT"
+}
