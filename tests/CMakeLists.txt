@@ -5,6 +5,8 @@ FetchContent_Declare(
   URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
+# Add this line to force shared runtime
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(unit_tests

@@ -49,11 +49,15 @@ jobs:
 
       - name: Configure the project
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ runner.os == 'Windows' && '-DCMAKE_CXX_FLAGS=/MD' || '' }}
 
       - name: Build the project
         run: |
           cmake --build build --config Release
+
+      - name: Run unit tests
+        run: |
+          ctest --test-dir build --output-on-failure
 
       - name: Archive build artifacts (only on master)
         if: github.ref == 'refs/heads/master'
