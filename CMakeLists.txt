@@ -16,7 +16,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src/database)
 include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
 include_directories(${CMAKE_SOURCE_DIR}/src/managers)  # Add this line
 
-configure_file(${CMAKE_SOURCE_DIR}/src/cocktails.json ${CMAKE_BINARY_DIR}/cocktails.json COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/src/database/schema.sql ${CMAKE_BINARY_DIR}/schema.sql COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/src/database/data.sql ${CMAKE_BINARY_DIR}/data.sql COPYONLY)
 
