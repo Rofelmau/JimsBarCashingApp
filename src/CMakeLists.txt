@@ -8,6 +8,15 @@ set(CMAKE_AUTOUIC ON)
 # Find Qt5 packages
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Qml)
 
+# Fetch spdlog
+include(FetchContent)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.12.0
+)
+FetchContent_MakeAvailable(spdlog)
+
 add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)
