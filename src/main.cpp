@@ -1,12 +1,15 @@
 #include "Logger.h"
 
 #include "DatabaseManager.h"
+
 #include "CocktailRepository.h"
 #include "SalesRepository.h"
 #include "SettingsRepository.h"
+
 #include "CheckoutScreenController.h"
 #include "CocktailsConfigurationScreenController.h"
 #include "GeneralSettingsScreenController.h"
+#include "StatisticsScreenController.h"
 
 #include <QApplication>
 #include <QGuiApplication>
@@ -54,6 +57,9 @@ int main(int argc, char *argv[])
 
     CheckoutScreenController checkoutScreenController{settingsRepository, cocktailRepository, salesRepository};
     engine.rootContext()->setContextProperty("CheckoutScreenController", &checkoutScreenController);
+
+    StatisticsScreenController statisticsScreenController{salesRepository};
+    engine.rootContext()->setContextProperty("StatisticsScreenController", &statisticsScreenController);
 
     Logger::LogInfo("Loading QML file...");
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
