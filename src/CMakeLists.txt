@@ -8,6 +8,16 @@ set(CMAKE_AUTOUIC ON)
 # Find Qt5 packages
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Qml)
 
+# Fetch spdlog
+include(FetchContent)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.12.0
+)
+FetchContent_MakeAvailable(spdlog)
+
+# Find spdlog package
 add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)
@@ -16,6 +26,7 @@ add_subdirectory(controllers)
 add_executable(MyProject 
     main.cpp
     DatabaseManager.cpp
+    Logger.cpp
 )
 
 # Add QML resources
@@ -24,6 +35,7 @@ qt5_add_resources(QT_RESOURCES qml.qrc)
 # Link libraries
 target_link_libraries(MyProject PRIVATE repositories Qt5::Core Qt5::Sql Qt5::Widgets Qt5::Qml)
 target_link_libraries(MyProject PRIVATE controllers Qt5::Core Qt5::Widgets Qt5::Qml)
+target_link_libraries(MyProject PRIVATE spdlog::spdlog)
 
 # Ensure the database is created before building the project
 add_dependencies(MyProject create_database)
