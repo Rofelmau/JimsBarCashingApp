@@ -23,7 +23,7 @@ void SalesRepository::saveSale(const Sale &sale)
     // Insert the sale
     query.prepare("INSERT INTO Sales (timestamp, payment_method, price_per_cocktail, total_price, returned_cups) "
                   "VALUES (:timestamp, :payment_method, :price_per_cocktail, :total_price, :returned_cups)");
-    query.bindValue(":timestamp", sale.getTimestamp().toString(Qt::ISODate));
+    query.bindValue(":timestamp", sale.getTimestamp().toUTC().toString(Qt::ISODate)); // Save in UTC ISO 8601 format
     query.bindValue(":payment_method", static_cast<int>(sale.getPaymentMethod()));
     query.bindValue(":price_per_cocktail", sale.getPricePerCocktail());
     query.bindValue(":total_price", sale.getTotalPrice());
@@ -58,25 +58,12 @@ QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QS
         return salesData;
     }
 
-    // Konvertiere in QDate
+    // Convert to UTC ISO 8601 format
     QDate startQDate = QDate::fromString(startDate, "yyyy-MM-dd");
     QDate endQDate = QDate::fromString(endDate, "yyyy-MM-dd");
 
-    if (!startQDate.isValid() || !endQDate.isValid()) {
-        Logger::LogError("Invalid date format: startDate or endDate is not in 'yyyy-MM-dd' format.");
-        return salesData;
-    }
-
-    // Lokale Zeit erzeugen
-    QDateTime startDateTimeLocal(startQDate, QTime(0, 0, 0), QTimeZone::systemTimeZone());
-    QDateTime endDateTimeLocal(endQDate, QTime(23, 59, 59), QTimeZone::systemTimeZone());
-
-    // In UTC umwandeln, um mit der Datenbank übereinzustimmen
-    QDateTime startDateTimeUTC = startDateTimeLocal.toUTC();
-    QDateTime endDateTimeUTC = endDateTimeLocal.toUTC();
-
-    QString startDateString = startDateTimeUTC.toString("yyyy-MM-dd HH:mm:ss");
-    QString endDateString = endDateTimeUTC.toString("yyyy-MM-dd HH:mm:ss");
+    QDateTime startDateTime = startQDate.startOfDay(Qt::UTC);
+    QDateTime endDateTime = endQDate.endOfDay(Qt::UTC);
 
     query.prepare(R"(
         SELECT Cocktails.name AS cocktailName, 
@@ -90,8 +77,8 @@ QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QS
         ORDER BY quantitySold DESC
     )");
 
-    query.bindValue(":startDate", startDateString);
-    query.bindValue(":endDate", endDateString);
+    query.bindValue(":startDate", startDateTime.toString(Qt::ISODate));
+    query.bindValue(":endDate", endDateTime.toString(Qt::ISODate));
 
     if (!query.exec()) {
         Logger::LogError("Failed to fetch sales data: " + query.lastError().text().toStdString());

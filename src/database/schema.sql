@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS Discounts (
 -- Sales table
 CREATE TABLE IF NOT EXISTS Sales (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    timestamp TEXT DEFAULT (datetime('now', 'utc')), -- ISO 8601 format in UTC
     payment_method INTEGER,
     price_per_cocktail REAL,
     total_price REAL,
