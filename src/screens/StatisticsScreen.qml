@@ -213,11 +213,14 @@ Page {
 
                     if (data.length === 0) return;
 
+                    // Find the maximum quantity for scaling
                     for (let i = 0; i < data.length; i++) {
                         maxQuantity = Math.max(maxQuantity, data[i].quantitySold);
                     }
 
-                    let xSpacing = chartWidth / (data.length - 1);
+                    if (maxQuantity === 0) return; // Avoid division by zero
+
+                    let xSpacing = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth; // Adjust for single data point
                     let yScale = chartHeight / maxQuantity;
 
                     ctx.strokeStyle = "#3498db";
@@ -225,7 +228,7 @@ Page {
                     ctx.beginPath();
 
                     for (let i = 0; i < data.length; i++) {
-                        let x = 40 + i * xSpacing;
+                        let x = 40 + (data.length > 1 ? i * xSpacing : chartWidth / 2); // Center single point
                         let y = chartHeight - data[i].quantitySold * yScale + 40;
 
                         if (i === 0) {

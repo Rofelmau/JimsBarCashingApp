@@ -118,8 +118,15 @@ QList<SaleDataByTime> SalesRepository::getSalesDataByTime(const QString &startDa
         ORDER BY timePeriod ASC
     )");
 
-    query.bindValue(":startDate", startDate);
-    query.bindValue(":endDate", endDate);
+    // Convert to UTC ISO 8601 format
+    QDate startQDate = QDate::fromString(startDate, "yyyy-MM-dd");
+    QDate endQDate = QDate::fromString(endDate, "yyyy-MM-dd");
+
+    QDateTime startDateTime = startQDate.startOfDay(Qt::UTC);
+    QDateTime endDateTime = endQDate.endOfDay(Qt::UTC);
+
+    query.bindValue(":startDate", startDateTime.toString(Qt::ISODate));
+    query.bindValue(":endDate", endDateTime.toString(Qt::ISODate));
 
     if (!query.exec()) {
         Logger::LogError("Failed to fetch sales data by time: " + query.lastError().text().toStdString());
