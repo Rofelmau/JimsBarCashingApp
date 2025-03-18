@@ -11,7 +11,7 @@ StatisticsScreenController::StatisticsScreenController(QSharedPointer<SalesRepos
 {
 }
 
-void StatisticsScreenController::fetchCocktailSalesByDate(const QString &startDate, const QString &endDate)
+void StatisticsScreenController::fetchCocktailSales(const QString &startDate, const QString &endDate)
 {
     // Ensure dates are in the correct format
     QDate parsedStartDate = QDate::fromString(startDate, "dd.MM.yyyy");
@@ -34,6 +34,15 @@ void StatisticsScreenController::fetchCocktailSalesByDate(const QString &startDa
         Logger::LogInfo("Fetched sales data: " + std::to_string(m_salesDataList.size()) + " entries.");
     }
 
+    // Fetch sales data grouped by time from the repository
+    m_salesDataByTimeList = m_salesRepository->getSalesDataByTime(formattedStartDate, formattedEndDate);
+
+    if (m_salesDataByTimeList.isEmpty()) {
+        Logger::LogInfo("No sales data by time found for the given date range.");
+    } else {
+        Logger::LogInfo("Fetched sales data by time: " + std::to_string(m_salesDataByTimeList.size()) + " entries.");
+    }
+
     emit salesDataChanged();
 }
 
@@ -45,6 +54,18 @@ QVariantList StatisticsScreenController::salesData() const
         map["cocktailName"] = entry.cocktailName;
         map["quantitySold"] = entry.quantitySold;
         map["pricePerCocktail"] = entry.pricePerCocktail;
+        result.append(map);
+    }
+    return result;
+}
+
+QVariantList StatisticsScreenController::salesDataByTime() const
+{
+    QVariantList result;
+    for (const auto &entry : m_salesDataByTimeList) {
+        QVariantMap map;
+        map["timePeriod"] = entry.timePeriod;
+        map["quantitySold"] = entry.quantitySold;
         result.append(map);
     }
     return result;

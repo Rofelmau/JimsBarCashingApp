@@ -12,13 +12,15 @@ class StatisticsScreenController : public QObject
     Q_PROPERTY(double totalRevenue READ getTotalRevenue NOTIFY salesDataChanged)
     Q_PROPERTY(int totalCocktailsSold READ getTotalCocktailsSold NOTIFY salesDataChanged)
     Q_PROPERTY(QString bestSellerCocktail READ getBestSellerCocktail NOTIFY salesDataChanged)
+    Q_PROPERTY(QVariantList salesDataByTime READ salesDataByTime NOTIFY salesDataChanged)
 
 public:
     explicit StatisticsScreenController(QSharedPointer<SalesRepository> salesRepository, QObject *parent = nullptr);
 
-    Q_INVOKABLE void fetchCocktailSalesByDate(const QString &startDate, const QString &endDate);
+    Q_INVOKABLE void fetchCocktailSales(const QString &startDate, const QString &endDate);
 
     QVariantList salesData() const;
+    QVariantList salesDataByTime() const;
 
     double getTotalRevenue() const;
     int getTotalCocktailsSold() const;
@@ -30,4 +32,5 @@ signals:
 private:
     QSharedPointer<SalesRepository> m_salesRepository;
     QList<SaleData> m_salesDataList;
+    QList<SaleDataByTime> m_salesDataByTimeList;
 };

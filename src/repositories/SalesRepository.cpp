@@ -108,3 +108,43 @@ QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QS
 
     return salesData;
 }
+
+QList<SaleDataByTime> SalesRepository::getSalesDataByTime(const QString &startDate, const QString &endDate)
+{
+    QList<SaleDataByTime> salesDataByTime;
+
+    QSqlDatabase db = m_databaseManager->database();
+    QSqlQuery query(db);
+
+    if (startDate.isEmpty() || endDate.isEmpty()) {
+        Logger::LogError("Invalid date range: startDate or endDate is empty.");
+        return salesDataByTime;
+    }
+
+    query.prepare(R"(
+        SELECT strftime('%Y-%m-%d %H:00', Sales.timestamp) AS timePeriod,
+               SUM(SalesDetails.quantity) AS quantitySold
+        FROM Sales
+        INNER JOIN SalesDetails ON Sales.id = SalesDetails.sale_id
+        WHERE Sales.timestamp BETWEEN :startDate AND :endDate
+        GROUP BY timePeriod
+        ORDER BY timePeriod ASC
+    )");
+
+    query.bindValue(":startDate", startDate);
+    query.bindValue(":endDate", endDate);
+
+    if (!query.exec()) {
+        Logger::LogError("Failed to fetch sales data by time: " + query.lastError().text().toStdString());
+        return salesDataByTime;
+    }
+
+    while (query.next()) {
+        SaleDataByTime data;
+        data.timePeriod = query.value("timePeriod").toString();
+        data.quantitySold = query.value("quantitySold").toInt();
+        salesDataByTime.append(data);
+    }
+
+    return salesDataByTime;
+}

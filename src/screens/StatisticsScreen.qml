@@ -40,10 +40,20 @@ Page {
 
             Button {
                 text: "Load Statistics"
-                onClicked: StatisticsScreenController.fetchCocktailSalesByDate(
+                onClicked: StatisticsScreenController.fetchCocktailSales(
                     startDatePopup.selectedDate,
                     endDatePopup.selectedDate
                 )
+            }
+
+            Button {
+                id: toggleChartButton
+                text: barChartItem.visible ? "Show Line Chart" : "Show Bar Chart"
+                onClicked: {
+                    barChartItem.visible = !barChartItem.visible;
+                    lineChartItem.visible = !lineChartItem.visible;
+                    toggleChartButton.text = barChartItem.visible ? "Show Line Chart" : "Show Bar Chart";
+                }
             }
         }
 
@@ -71,6 +81,7 @@ Page {
             height: implicitHeight
             Layout.preferredHeight: 0
             Layout.minimumHeight: 290
+            visible: true
 
             property var salesData: StatisticsScreenController.salesData
 
@@ -165,6 +176,99 @@ Page {
                 target: StatisticsScreenController
                 function onSalesDataChanged() {
                     barChartCanvas.requestPaint();
+                }
+            }
+        }
+
+        Item {
+            id: lineChartItem
+            width: parent.width
+            height: implicitHeight
+            Layout.preferredHeight: 0
+            Layout.minimumHeight: 290
+            visible: false
+
+            property var salesData: StatisticsScreenController.salesDataByTime
+
+            Rectangle {
+                anchors.fill: parent
+                color: "lightgray"
+                border.color: "blue"
+                border.width: 2
+            }
+
+            Canvas {
+                id: lineChartCanvas
+                anchors.fill: parent
+
+                onPaint: {
+                    let ctx = lineChartCanvas.getContext("2d");
+                    ctx.clearRect(0, 0, lineChartCanvas.width, lineChartCanvas.height);
+
+                    let chartWidth = lineChartCanvas.width - 80;
+                    let chartHeight = lineChartCanvas.height - 80;
+                    let maxQuantity = 0;
+
+                    let data = lineChartCanvas.parent.salesData;
+
+                    if (data.length === 0) return;
+
+                    for (let i = 0; i < data.length; i++) {
+                        maxQuantity = Math.max(maxQuantity, data[i].quantitySold);
+                    }
+
+                    let xSpacing = chartWidth / (data.length - 1);
+                    let yScale = chartHeight / maxQuantity;
+
+                    ctx.strokeStyle = "#3498db";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+
+                    for (let i = 0; i < data.length; i++) {
+                        let x = 40 + i * xSpacing;
+                        let y = chartHeight - data[i].quantitySold * yScale + 40;
+
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+
+                        ctx.fillStyle = "#3498db";
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                        ctx.fill();
+
+                        // Add labels for each data point
+                        ctx.fillStyle = "#000";
+                        ctx.font = "12px sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.fillText(data[i].quantitySold, x, y - 10); // Quantity above the point
+                        ctx.fillText(data[i].timePeriod, x, chartHeight + 60); // Date and hour below the chart
+                    }
+                    ctx.stroke();
+
+                    ctx.strokeStyle = "#000";
+                    ctx.lineWidth = 1;
+
+                    ctx.beginPath();
+                    ctx.moveTo(40, chartHeight + 40);
+                    ctx.lineTo(lineChartCanvas.width - 10, chartHeight + 40);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(40, 40);
+                    ctx.lineTo(40, chartHeight + 40);
+                    ctx.stroke();
+                }
+
+                Component.onCompleted: lineChartCanvas.requestPaint()
+            }
+
+            Connections {
+                target: StatisticsScreenController
+                function onSalesDataByTimeChanged() {
+                    lineChartCanvas.requestPaint();
                 }
             }
         }
