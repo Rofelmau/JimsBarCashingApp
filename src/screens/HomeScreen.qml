@@ -56,7 +56,7 @@ Page {
             gradientStart: "#e57373"
             gradientEnd: "#d32f2f"
             onClickedAction: function() {
-                // TODO stackView.push("StatisticsScreen.qml")
+                stackView.push("StatisticsScreen.qml")
             }
         }
     }

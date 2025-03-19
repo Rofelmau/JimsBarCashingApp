@@ -17,7 +17,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-# Find spdlog package
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src/database)
+include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
+include_directories(${spdlog_INCLUDE_DIRS})
+
+# Add subdirectories
 add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)

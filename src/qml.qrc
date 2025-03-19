@@ -3,6 +3,7 @@
         <file>main.qml</file>
 
         <file>components/ChangeSettingsDialog.qml</file>
+        <file>components/DatePickerPopup.qml</file>
         <file>components/SelectCocktailDialog.qml</file>
         <file>components/TileButton.qml</file>
 

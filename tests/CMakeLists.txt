@@ -9,6 +9,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# Find Qt5 packages
+find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Qml)
+
 add_executable(unit_tests
   test_main.cpp
   test_DatabaseManager.cpp
