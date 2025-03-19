@@ -28,6 +28,7 @@ public:
 
 signals:
     void salesDataChanged();
+    void invalidDateRange();
 
 private:
     QSharedPointer<SalesRepository> m_salesRepository;

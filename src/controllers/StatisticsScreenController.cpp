@@ -22,6 +22,12 @@ void StatisticsScreenController::fetchCocktailSales(const QString &startDate, co
         return;
     }
 
+    if (parsedStartDate > parsedEndDate) {
+        Logger::LogWarn("Invalid date range: startDate is after endDate.");
+        emit invalidDateRange();
+        return;
+    }
+
     QString formattedStartDate = parsedStartDate.toString("yyyy-MM-dd");
     QString formattedEndDate = parsedEndDate.toString("yyyy-MM-dd");
 
