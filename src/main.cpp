@@ -3,13 +3,18 @@
 #include "DatabaseManager.h"
 
 #include "CocktailRepository.h"
+#include "DiscountsRepository.h"
 #include "SalesRepository.h"
 #include "SettingsRepository.h"
 
 #include "CheckoutScreenController.h"
 #include "CocktailsConfigurationScreenController.h"
+#include "DiscountsConfigurationScreenController.h"
 #include "GeneralSettingsScreenController.h"
 #include "StatisticsScreenController.h"
+
+#include "DiscountModel.h"
+#include "entities/DiscountType.h"
 
 #include <QApplication>
 #include <QGuiApplication>
@@ -45,13 +50,14 @@ int main(int argc, char *argv[])
 
     Logger::LogInfo("Setting up repositories...");
     QSharedPointer<CocktailRepository> cocktailRepository{new CocktailRepository{dbManager}};
+    QSharedPointer<DiscountsRepository> discountsRepository{new DiscountsRepository{dbManager}};
     QSharedPointer<SalesRepository> salesRepository{new SalesRepository{dbManager}};
     QSharedPointer<SettingsRepository> settingsRepository{new SettingsRepository{dbManager, cocktailRepository}};
 
     Logger::LogInfo("Setting up controllers...");
     CocktailsConfigurationScreenController cocktailsConfigurationScreenController(cocktailRepository);
     engine.rootContext()->setContextProperty("CocktailsConfigurationScreenController", &cocktailsConfigurationScreenController);
-    
+
     GeneralSettingsScreenController generalSettingsScreenController{settingsRepository, cocktailRepository};
     engine.rootContext()->setContextProperty("GeneralSettingsScreenController", &generalSettingsScreenController);
 
@@ -61,9 +67,17 @@ int main(int argc, char *argv[])
     StatisticsScreenController statisticsScreenController{salesRepository};
     engine.rootContext()->setContextProperty("StatisticsScreenController", &statisticsScreenController);
 
+    DiscountsConfigurationScreenController discountsConfigurationScreenController{discountsRepository};
+    engine.rootContext()->setContextProperty("DiscountsConfigurationScreenController", &discountsConfigurationScreenController);
+
+    Logger::LogInfo("Registering Models to QML ...");
+    qmlRegisterType<DiscountModel>("JimsBarCashingApp", 1, 0, "DiscountModel");
+    qmlRegisterType<DiscountTypeHelper>("App.Helpers", 1, 0, "DiscountTypeHelper");
+
     Logger::LogInfo("Loading QML file...");
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty()) {
+    if (engine.rootObjects().isEmpty())
+    {
         Logger::LogError("Failed to load QML file. Exiting application.");
         return -1;
     }

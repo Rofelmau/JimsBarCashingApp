@@ -27,6 +27,8 @@ include_directories(${spdlog_INCLUDE_DIRS})
 add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)
+add_subdirectory(models)
+
 
 # Add the main executable
 add_executable(MyProject 

@@ -68,7 +68,7 @@ Page {
                 gradientStart: "#8bc34a"
                 gradientEnd: "#689f38"
                 onClickedAction: function() {
-                    // TBD stackView.push("CheckoutScreen.qml")
+                    stackView.push("DiscountsConfigurationScreen.qml")
                 }
             }
         }

@@ -1,6 +1,8 @@
 # Add the entity sources
 add_library(entities
                         Cocktail.cpp
+                        Discount.cpp
+                        DiscountType.cpp
                         GeneralSettings.cpp
                         Sale.cpp)
 
