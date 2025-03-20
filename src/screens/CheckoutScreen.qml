@@ -13,8 +13,9 @@ Page {
 
     property var controller: CheckoutScreenController
 
-    Column {
+    ColumnLayout {
         anchors.fill: parent
+        anchors.margins: 5
 
         spacing: 5
 
@@ -69,55 +70,239 @@ Page {
             }
         }
 
-        Row {
+        RowLayout {
             width: parent.width
             spacing: 10
 
-            GridLayout {
-                columns: 3
-                rows: 2
-                rowSpacing: 10
-                columnSpacing: 10
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-                Repeater {
-                    model: controller.selectedCocktails
+            ColumnLayout {
+                GridLayout {
+                    columns: 3
+                    rows: 2
+                    rowSpacing: 10
+                    columnSpacing: 10
 
-                    TileButton {
-                        Layout.preferredWidth: 160
-                        Layout.preferredHeight: 160
-                        Layout.alignment: Qt.AlignCenter
+                    Repeater {
+                        model: controller.selectedCocktails
 
-                        buttonText: modelData.name
-                        borderColor: "darkgreen"
-                        gradientStart: "#8bc34a"
-                        gradientEnd: "#689f38"
-                        onClickedAction: function() {
-                            controller.cocktailSelected(modelData.id);
+                        TileButton {
+                            Layout.preferredWidth: 160
+                            Layout.preferredHeight: 160
+                            Layout.alignment: Qt.AlignCenter
+
+                            buttonText: modelData.name
+                            borderColor: "darkgreen"
+                            gradientStart: "#8bc34a"
+                            gradientEnd: "#689f38"
+                            onClickedAction: function() {
+                                controller.cocktailSelected(modelData.id);
+                            }
+                        }
+                    }
+                }
+                
+                Row  {
+                    width: parent.width
+                    spacing: 10
+
+                    Button {
+                        id: cupPawnReturnButton
+
+                        width: 160
+                        height: 40
+
+                        property string buttonText: "Pfandrückgabe"
+                        property color borderColor: "darkblue"
+                        property color gradientStart: "#5e81f4"
+                        property color gradientEnd: "#4c66d4"
+                        property var onClickedAction: null
+
+                        DropShadow {
+                            anchors.fill: parent
+                            horizontalOffset: 4
+                            verticalOffset: 4
+                            color: "#000000"
+                            radius: 8
+                            samples: 16
+                            source: backgroundRect
+                        }
+
+                        background: Rectangle {
+                            id: backgroundRect
+                            width: parent.width
+                            height: parent.height
+                            radius: 20
+                            border.color: cupPawnReturnButton.borderColor
+                            border.width: 2
+
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: cupPawnReturnButton.gradientStart }
+                                GradientStop { position: 1.0; color: cupPawnReturnButton.gradientEnd }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: cupPawnReturnButton.buttonText
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: "white"
+                                wrapMode: Text.Wrap
+                                horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
+                                width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
+                            }
+                        }
+
+                        onClicked: {
+                            controller.returnCup();
+                        }
+                    }
+
+                    Button {
+                        id: cashPayButton
+
+                        width: 160
+                        height: 40
+
+                        property string buttonText: "Bar Zahlung"
+                        property color borderColor: "darkblue"
+                        property color gradientStart: "#5e81f4"
+                        property color gradientEnd: "#4c66d4"
+                        property var onClickedAction: null
+
+                        enabled: controller.totalPrice !== 0.0
+
+                        DropShadow {
+                            anchors.fill: parent
+                            horizontalOffset: 4
+                            verticalOffset: 4
+                            color: "#000000"
+                            radius: 8
+                            samples: 16
+                            source: backgroundRect2
+                        }
+
+                        background: Rectangle {
+                            id: backgroundRect2
+                            width: parent.width
+                            height: parent.height
+                            radius: 20
+                            border.color: cashPayButton.borderColor
+                            border.width: 2
+
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: cashPayButton.gradientStart }
+                                GradientStop { position: 1.0; color: cashPayButton.gradientEnd }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: cashPayButton.buttonText
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: "white"
+                                wrapMode: Text.Wrap
+                                horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
+                                width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
+                            }
+                        }
+
+                        onClicked: {
+                            paymentDialog.paymentMethod = 0; // Cash payment
+                            paymentDialog.visible = true;
+                        }
+                    
+                    }
+
+                    Button {
+                        id: cardPaymentButton
+
+                        width: 160
+                        height: 40
+
+                        property string buttonText: "Kartenzahlung"
+                        property color borderColor: "darkblue"
+                        property color gradientStart: "#5e81f4"
+                        property color gradientEnd: "#4c66d4"
+                        property var onClickedAction: null
+
+                        enabled: controller.totalPrice > 0.0
+            
+                        DropShadow {
+                            anchors.fill: parent
+                            horizontalOffset: 4
+                            verticalOffset: 4
+                            color: "#000000"
+                            radius: 8
+                            samples: 16
+                            source: backgroundRect3
+                        }
+
+                        background: Rectangle {
+                            id: backgroundRect3
+                            width: parent.width
+                            height: parent.height
+                            radius: 20
+                            border.color: cardPaymentButton.borderColor
+                            border.width: 2
+
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: cardPaymentButton.gradientStart }
+                                GradientStop { position: 1.0; color: cardPaymentButton.gradientEnd }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: cardPaymentButton.buttonText
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: "white"
+                                wrapMode: Text.Wrap
+                                horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
+                                width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
+                            }
+                        }
+
+                        onClicked: {
+                            paymentDialog.paymentMethod = 1; // Card payment
+                            paymentDialog.visible = true;
                         }
                     }
                 }
             }
 
             Rectangle {
-                width: 240
-                height: parent.height
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.minimumWidth: 240
                 border.color: "black"
                 border.width: 1
 
-                Column {
+                ColumnLayout {
                     anchors.fill: parent
+                    anchors.margins: 5
+
                     spacing: 5
+
+
                     Text {
                         text: "Einkaufsliste:"
                         font.bold: true
                     }
+
                     ListView {
                         id: shoppingCard
 
                         width: parent.width
-                        height: parent.height*0.8
+                        Layout.fillHeight: true
+                        clip: false
+
                         model: controller.currentSaleDetails
                         spacing: 2
+
+                        property real calculatedHeight: contentItem.childrenRect.height
+                        height: Math.min(calculatedHeight, parent.height)
 
                         delegate: Row {
                             spacing: 2
@@ -144,6 +329,9 @@ Page {
                             }
                         }
                     }
+
+                    Item { Layout.fillHeight: true } // Flexible element to make the stick to the right edge fo the screen
+
                     Text {
                         text: "Gesamt: " + controller.totalPrice.toFixed(2) + "€"
                         font.bold: true
@@ -158,173 +346,6 @@ Page {
             }
         }
 
-        Row  {
-            width: parent.width
-            spacing: 10
-
-            Button {
-                id: cupPawnReturnButton
-
-                width: 160
-                height: 40
-
-                property string buttonText: "Pfandrückgabe"
-                property color borderColor: "darkblue"
-                property color gradientStart: "#5e81f4"
-                property color gradientEnd: "#4c66d4"
-                property var onClickedAction: null
-
-                DropShadow {
-                    anchors.fill: parent
-                    horizontalOffset: 4
-                    verticalOffset: 4
-                    color: "#000000"
-                    radius: 8
-                    samples: 16
-                    source: backgroundRect
-                }
-
-                background: Rectangle {
-                    id: backgroundRect
-                    width: parent.width
-                    height: parent.height
-                    radius: 20
-                    border.color: cupPawnReturnButton.borderColor
-                    border.width: 2
-
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: cupPawnReturnButton.gradientStart }
-                        GradientStop { position: 1.0; color: cupPawnReturnButton.gradientEnd }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: cupPawnReturnButton.buttonText
-                        font.pixelSize: 14
-                        font.bold: true
-                        color: "white"
-                        wrapMode: Text.Wrap
-                        horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
-                        width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
-                    }
-                }
-
-                onClicked: {
-                    controller.returnCup();
-                }
-            }
-
-            Button {
-                id: cashPayButton
-
-                width: 160
-                height: 40
-
-                property string buttonText: "Bar Zahlung"
-                property color borderColor: "darkblue"
-                property color gradientStart: "#5e81f4"
-                property color gradientEnd: "#4c66d4"
-                property var onClickedAction: null
-
-                enabled: controller.totalPrice !== 0.0
-
-                DropShadow {
-                    anchors.fill: parent
-                    horizontalOffset: 4
-                    verticalOffset: 4
-                    color: "#000000"
-                    radius: 8
-                    samples: 16
-                    source: backgroundRect2
-                }
-
-                background: Rectangle {
-                    id: backgroundRect2
-                    width: parent.width
-                    height: parent.height
-                    radius: 20
-                    border.color: cashPayButton.borderColor
-                    border.width: 2
-
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: cashPayButton.gradientStart }
-                        GradientStop { position: 1.0; color: cashPayButton.gradientEnd }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: cashPayButton.buttonText
-                        font.pixelSize: 14
-                        font.bold: true
-                        color: "white"
-                        wrapMode: Text.Wrap
-                        horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
-                        width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
-                    }
-                }
-
-                onClicked: {
-                    paymentDialog.paymentMethod = 0; // Cash payment
-                    paymentDialog.visible = true;
-                }
-              
-            }
-
-            Button {
-                id: cardPaymentButton
-
-                width: 160
-                height: 40
-
-                property string buttonText: "Kartenzahlung"
-                property color borderColor: "darkblue"
-                property color gradientStart: "#5e81f4"
-                property color gradientEnd: "#4c66d4"
-                property var onClickedAction: null
-
-                enabled: controller.totalPrice > 0.0
-    
-                DropShadow {
-                    anchors.fill: parent
-                    horizontalOffset: 4
-                    verticalOffset: 4
-                    color: "#000000"
-                    radius: 8
-                    samples: 16
-                    source: backgroundRect3
-                }
-
-                background: Rectangle {
-                    id: backgroundRect3
-                    width: parent.width
-                    height: parent.height
-                    radius: 20
-                    border.color: cardPaymentButton.borderColor
-                    border.width: 2
-
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: cardPaymentButton.gradientStart }
-                        GradientStop { position: 1.0; color: cardPaymentButton.gradientEnd }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: cardPaymentButton.buttonText
-                        font.pixelSize: 14
-                        font.bold: true
-                        color: "white"
-                        wrapMode: Text.Wrap
-                        horizontalAlignment: Text.AlignHCenter // Horizontale Zentrierung des Textes
-                        width: parent.width * 0.8 // Optional, damit der Text nicht den gesamten Button ausfüllt
-                    }
-                }
-
-                onClicked: {
-                    paymentDialog.paymentMethod = 1; // Card payment
-                    paymentDialog.visible = true;
-                }
-            }
-        }
     }
 
     Dialog {
