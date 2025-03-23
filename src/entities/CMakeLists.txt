@@ -10,4 +10,4 @@ add_library(entities
 target_include_directories(entities PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Link Qt5 libraries
-target_link_libraries(entities PRIVATE Qt5::Core)
+target_link_libraries(entities PRIVATE spdlog::spdlog Qt5::Core)

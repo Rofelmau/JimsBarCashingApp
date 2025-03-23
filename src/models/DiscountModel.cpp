@@ -51,14 +51,12 @@ QVariant DiscountModel::data(const QModelIndex &index, int role) const
         return discount->getName();
     case TypeRole:
         return DiscountTypeHelper::toString(discount->getType());
+    case TypeValueRole:
+        return static_cast<int>(discount->getType());
     case ValueRole:
         return discount->getValue();
     case CocktailLimitRole:
         return discount->getCocktailLimit();
-    case ReusableRole:
-        return discount->isReusable();
-    case CombinableRole:
-        return discount->isCombinable();
     }
 
     return QVariant();
@@ -70,9 +68,8 @@ QHash<int, QByteArray> DiscountModel::roleNames() const
     roles[IdRole] = "id";
     roles[NameRole] = "name";
     roles[TypeRole] = "type";
+    roles[TypeValueRole] = "typeValue";
     roles[ValueRole] = "value";
     roles[CocktailLimitRole] = "cocktailLimit";
-    roles[ReusableRole] = "reusable";
-    roles[CombinableRole] = "combinable";
     return roles;
 }

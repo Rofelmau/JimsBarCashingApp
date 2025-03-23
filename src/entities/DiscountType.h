@@ -11,9 +11,10 @@ class DiscountTypeHelper : public QObject
 public:
     enum class DiscountType
     {
-        PerPiece = 0,
-        FixedPrice,
-        Percentage
+        ClassicDiscount = 0,
+        GroupDiscount,
+        ForFree,
+        PercentageDiscount
     };
     Q_ENUM(DiscountType)
 
@@ -21,9 +22,10 @@ public:
 
     Q_INVOKABLE static QStringList values();
     Q_INVOKABLE static QString toString(DiscountType type);
+    Q_INVOKABLE static DiscountType fromString(const QString &type);
+
 
     static bool isValidDiscountType(int value);
-    static DiscountType fromString(const QString &type);
 };
 
 using DiscountType = DiscountTypeHelper::DiscountType;

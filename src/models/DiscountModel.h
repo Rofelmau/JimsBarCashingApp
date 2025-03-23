@@ -14,10 +14,9 @@ public:
         IdRole = Qt::UserRole + 1,
         NameRole,
         TypeRole,
+        TypeValueRole,
         ValueRole,
-        CocktailLimitRole,
-        ReusableRole,
-        CombinableRole
+        CocktailLimitRole
     };
 
     explicit DiscountModel(QObject *parent = nullptr);

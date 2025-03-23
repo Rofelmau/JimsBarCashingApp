@@ -31,9 +31,7 @@ CREATE TABLE IF NOT EXISTS Discounts (
     name TEXT,
     type INTEGER,
     value REAL,
-    cocktail_limit INTEGER,
-    reusable BOOLEAN DEFAULT 0,
-    combinable BOOLEAN DEFAULT 1
+    cocktail_limit INTEGER
 );
 
 -- SalesDiscounts table

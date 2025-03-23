@@ -37,6 +37,11 @@ Dialog {
             Layout.fillWidth: true
             model: discountTypeHelper.values()
             currentIndex: 0
+            onCurrentIndexChanged: {
+                const selectedType = typeComboBox.currentIndex;
+                valueField.enabled = selectedType !== DiscountTypeHelper.ForFree;
+                cocktailLimitField.enabled = selectedType === DiscountTypeHelper.GroupDiscount;
+            }
         }
 
         TextField {
@@ -44,6 +49,7 @@ Dialog {
             placeholderText: "Wert des Rabatts"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             Layout.fillWidth: true
+            enabled: typeComboBox.currentIndex !== DiscountTypeHelper.ForFree
         }
 
         TextField {
@@ -51,18 +57,7 @@ Dialog {
             placeholderText: "Cocktail-Limit (optional)"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             Layout.fillWidth: true
-        }
-
-        CheckBox {
-            id: reusableCheckBox
-            text: "Mehrfach anwendbar"
-            checked: false
-        }
-
-        CheckBox {
-            id: combinableCheckBox
-            text: "Kombinierbar"
-            checked: true
+            enabled: typeComboBox.currentIndex === DiscountTypeHelper.GroupDiscount
         }
 
         RowLayout {
@@ -76,29 +71,27 @@ Dialog {
 
             Button {
                 text: isEditMode ? "Speichern" : "Hinzufügen"
-                enabled: nameField.text.length > 0 && valueField.text.length > 0
+                enabled: nameField.text.length > 0 && (valueField.enabled ? valueField.text.length > 0 : true)
                 onClicked: {
+                    const discountValues = discountTypeHelper.values();
+
                     if (isEditMode) {
                         DiscountsConfigurationScreenController.updateDiscount(
                             discountId,
                             nameField.text,
-                            typeComboBox.currentText,
+                            typeComboBox.currentIndex,
                             parseFloat(valueField.text),
                             cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1,
-                            reusableCheckBox.checked,
-                            combinableCheckBox.checked
                         )
                     } else {
                         DiscountsConfigurationScreenController.addDiscount(
                             nameField.text,
-                            typeComboBox.currentText,
+                            typeComboBox.currentIndex,
                             parseFloat(valueField.text),
                             cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1,
-                            reusableCheckBox.checked,
-                            combinableCheckBox.checked
                         )
                     }
-                    addDiscountDialog.close()
+                    addDiscountDialog.close();
                 }
             }
         }
@@ -108,14 +101,14 @@ Dialog {
         isEditMode = true;
         discountId = discount.id;
         nameField.text = discount.name;
-
-        const discountValues = discountTypeHelper.values();
-        typeComboBox.currentIndex = discountValues.indexOf(discount.type);
-
+        typeComboBox.currentIndex = discount.typeValue;
         valueField.text = discount.value.toString();
-        cocktailLimitField.text = discount.cocktailLimit > 0 ? discount.cocktailLimit.toString() : "";
-        reusableCheckBox.checked = discount.reusable;
-        combinableCheckBox.checked = discount.combinable;
+        cocktailLimitField.text = discount.cocktailLimit;
+
+        const selectedType = discount.typeValue;
+        valueField.enabled = selectedType !== DiscountTypeHelper.ForFree;
+        cocktailLimitField.enabled = selectedType === DiscountTypeHelper.GroupDiscount;
+
         open();
     }
 
@@ -124,10 +117,12 @@ Dialog {
         discountId = -1;
         nameField.text = "";
         typeComboBox.currentIndex = 0;
-        valueField.text = "";
-        cocktailLimitField.text = "";
-        reusableCheckBox.checked = false;
-        combinableCheckBox.checked = true;
+        valueField.text = "-1.0";
+        cocktailLimitField.text = "-1";
+
+        valueField.enabled = true;
+        cocktailLimitField.enabled = false;
+
         open();
     }
 }

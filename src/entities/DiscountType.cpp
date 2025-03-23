@@ -5,10 +5,15 @@
 
 namespace
 {
-    constexpr std::array<std::pair<DiscountTypeHelper::DiscountType, const char *>, 3> DiscountTypeStrings = {
-        {{DiscountTypeHelper::DiscountType::PerPiece, "PerPiece"},
-         {DiscountTypeHelper::DiscountType::FixedPrice, "FixedPrice"},
-         {DiscountTypeHelper::DiscountType::Percentage, "Percentage"}}};
+    constexpr std::array<std::pair<DiscountTypeHelper::DiscountType, const char *>, 4> DiscountTypeStrings = {
+        {
+            {DiscountTypeHelper::DiscountType::ClassicDiscount, "Klassischer Rabatt"},
+            {DiscountTypeHelper::DiscountType::GroupDiscount, "Gruppen Rabatt"},
+            {DiscountTypeHelper::DiscountType::ForFree, "Gratis"},
+            {DiscountTypeHelper::DiscountType::PercentageDiscount, "Prozentualer Rabatt"},
+        }
+    };
+
 }
 
 bool DiscountTypeHelper::isValidDiscountType(int value)
@@ -38,7 +43,7 @@ DiscountTypeHelper::DiscountType DiscountTypeHelper::fromString(const QString &t
             return pair.first;
         }
     }
-    throw std::invalid_argument("Invalid DiscountType string");
+    throw std::invalid_argument("Invalid DiscountType string " + type.toStdString());
 }
 
 QStringList DiscountTypeHelper::values()

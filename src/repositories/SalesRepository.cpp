@@ -6,7 +6,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
-#include <QDebug>
 #include <QTimeZone>
 
 SalesRepository::SalesRepository(QSharedPointer<DatabaseManager> dbManager, QObject *parent)
@@ -30,6 +29,7 @@ void SalesRepository::saveSale(const Sale &sale)
     query.bindValue(":returned_cups", sale.getReturnedCups());
     if (!query.exec()) {
         Logger::LogError("Failed to save sale: " + query.lastError().text().toStdString());
+        return;
     }
 
     int saleId = query.lastInsertId().toInt();
@@ -42,6 +42,20 @@ void SalesRepository::saveSale(const Sale &sale)
         query.bindValue(":quantity", detail.getQuantity());
         if (!query.exec()) {
             Logger::LogError("Failed to save sale detail: " + query.lastError().text().toStdString());
+        }
+    }
+
+    for (const auto &discount : sale.getAppliedDiscounts()) {
+        if (!discount) {
+            continue;
+        }
+        query.prepare("INSERT INTO SalesDiscounts (sale_id, discount_id, quantity) "
+                      "VALUES (:sale_id, :discount_id, :quantity)");
+        query.bindValue(":sale_id", saleId);
+        query.bindValue(":discount_id", discount->getId());
+        query.bindValue(":quantity", sale.getDiscountQuantity(discount->getId()));
+        if (!query.exec()) {
+            Logger::LogError("Failed to save sale discount: " + query.lastError().text().toStdString());
         }
     }
 }

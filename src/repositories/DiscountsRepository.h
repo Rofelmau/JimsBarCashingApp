@@ -15,6 +15,8 @@ public:
     bool updateDiscount(const Discount &discount);
     bool deleteDiscount(int discountId);
 
+    QSharedPointer<Discount> getDiscountById(int discountId);
+
 private:
     QSharedPointer<DatabaseManager> m_dbManager;
 };

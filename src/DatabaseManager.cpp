@@ -1,8 +1,9 @@
 #include "DatabaseManager.h"
+
+#include "Logger.h"
+
 #include <QSqlDatabase>
 #include <QSqlError>
-#include <QCoreApplication>
-#include <QDebug>
 
 DatabaseManager::DatabaseManager()
 {
@@ -10,9 +11,9 @@ DatabaseManager::DatabaseManager()
     db.setDatabaseName("cocktails.db");
 
     if (!db.open()) {
-        qDebug() << "Error: connection with database failed";
+        Logger::LogError("connection with database failed");
     } else {
-        qDebug() << "Database: connection ok";
+        Logger::LogInfo("Database: connection ok");
     }
 }
 

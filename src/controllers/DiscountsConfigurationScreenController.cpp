@@ -14,20 +14,20 @@ DiscountModel *DiscountsConfigurationScreenController::discountModel() const
     return m_discountModel.data();
 }
 
-void DiscountsConfigurationScreenController::addDiscount(const QString &name, const QString &type, double value, int cocktailLimit, bool reusable, bool combinable)
+void DiscountsConfigurationScreenController::addDiscount(const QString &name, const int type, double value, int cocktailLimit)
 {
-    DiscountType discountType = DiscountTypeHelper::fromString(type);
-    auto discount = QSharedPointer<Discount>::create(-1, name, discountType, value, cocktailLimit, reusable, combinable);
+    DiscountType discountType = static_cast<DiscountType>(type);
+    auto discount = QSharedPointer<Discount>::create(-1, name, discountType, value, cocktailLimit);
     if (m_discountsRepository->addDiscount(*discount))
     {
         loadDiscounts();
     }
 }
 
-void DiscountsConfigurationScreenController::updateDiscount(int id, const QString &name, const QString &type, double value, int cocktailLimit, bool reusable, bool combinable)
+void DiscountsConfigurationScreenController::updateDiscount(int id, const QString &name, const int type, double value, int cocktailLimit)
 {
-    DiscountType discountType = DiscountTypeHelper::fromString(type);
-    auto discount = QSharedPointer<Discount>::create(id, name, discountType, value, cocktailLimit, reusable, combinable);
+    DiscountType discountType = static_cast<DiscountType>(type);
+    auto discount = QSharedPointer<Discount>::create(id, name, discountType, value, cocktailLimit);
     if (m_discountsRepository->updateDiscount(*discount))
     {
         loadDiscounts();

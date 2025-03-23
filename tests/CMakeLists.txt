@@ -18,15 +18,19 @@ add_executable(unit_tests
   test_Cocktail.cpp
   ../src/DatabaseManager.cpp
   ../src/entities/Cocktail.cpp
+  ../src/Logger.cpp
 )
 
-target_link_libraries(unit_tests
+target_include_directories(unit_tests PRIVATE ${spdlog_SOURCE_DIR}/include)
+
+target_link_libraries(unit_tests PRIVATE
   gtest
   gtest_main
   Qt5::Core
   Qt5::Sql
   Qt5::Widgets
   Qt5::Qml
+  spdlog::spdlog
 )
 
 include(GoogleTest)

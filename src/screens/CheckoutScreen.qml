@@ -13,6 +13,9 @@ Page {
 
     property var controller: CheckoutScreenController
 
+    readonly property int buttonGridButtonsWidth: 135
+    readonly property int buttonGridButtonTextSize: 12
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 5
@@ -81,15 +84,15 @@ Page {
                 GridLayout {
                     columns: 3
                     rows: 2
-                    rowSpacing: 10
+                    rowSpacing: 5
                     columnSpacing: 10
 
                     Repeater {
                         model: controller.selectedCocktails
 
                         TileButton {
-                            Layout.preferredWidth: 160
-                            Layout.preferredHeight: 160
+                            Layout.preferredWidth: buttonGridButtonsWidth
+                            Layout.preferredHeight: buttonGridButtonsWidth
                             Layout.alignment: Qt.AlignCenter
 
                             buttonText: modelData.name
@@ -102,7 +105,71 @@ Page {
                         }
                     }
                 }
-                
+
+                GridLayout {
+                    id: discounts
+                    columns: 3
+                    rows: 2
+                    rowSpacing: 5
+                    columnSpacing: 10
+
+                    Repeater {
+                        model: controller.availableDiscounts
+
+                        Button {
+                            id: discountButton
+
+                            Layout.preferredWidth: buttonGridButtonsWidth
+                            Layout.preferredHeight: 40
+
+                            property color borderColor: "darkred"
+                            property color gradientStart: "#e57373"
+                            property color gradientEnd: "#d32f2f"
+                            property var onClickedAction: null
+
+                            DropShadow {
+                                anchors.fill: parent
+                                horizontalOffset: 4
+                                verticalOffset: 4
+                                color: "#000000"
+                                radius: 8
+                                samples: 16
+                                source: backgroundRect
+                            }
+
+                            background: Rectangle {
+                                id: backgroundRect
+                                width: parent.width
+                                height: parent.height
+                                radius: 20
+                                border.color: discountButton.borderColor
+                                border.width: 2
+
+                                gradient: Gradient {
+                                    GradientStop { position: 0.0; color: discountButton.gradientStart }
+                                    GradientStop { position: 1.0; color: discountButton.gradientEnd }
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData.name
+                                    font.pixelSize: buttonGridButtonTextSize
+                                    font.bold: true
+                                    color: "white"
+                                    wrapMode: Text.Wrap
+                                    horizontalAlignment: Text.AlignHCenter
+                                    width: parent.width * 0.8
+                                }
+                            }
+
+                            onClicked: {
+                                    controller.applyDiscount(modelData.id);
+                            }
+                        }
+
+                    }
+                }
+
                 Row  {
                     width: parent.width
                     spacing: 10
@@ -110,7 +177,7 @@ Page {
                     Button {
                         id: cupPawnReturnButton
 
-                        width: 160
+                        width: buttonGridButtonsWidth
                         height: 40
 
                         property string buttonText: "Pfandrückgabe"
@@ -145,7 +212,7 @@ Page {
                             Text {
                                 anchors.centerIn: parent
                                 text: cupPawnReturnButton.buttonText
-                                font.pixelSize: 14
+                                font.pixelSize: buttonGridButtonTextSize
                                 font.bold: true
                                 color: "white"
                                 wrapMode: Text.Wrap
@@ -162,7 +229,7 @@ Page {
                     Button {
                         id: cashPayButton
 
-                        width: 160
+                        width: buttonGridButtonsWidth
                         height: 40
 
                         property string buttonText: "Bar Zahlung"
@@ -199,7 +266,7 @@ Page {
                             Text {
                                 anchors.centerIn: parent
                                 text: cashPayButton.buttonText
-                                font.pixelSize: 14
+                                font.pixelSize: buttonGridButtonTextSize
                                 font.bold: true
                                 color: "white"
                                 wrapMode: Text.Wrap
@@ -218,7 +285,7 @@ Page {
                     Button {
                         id: cardPaymentButton
 
-                        width: 160
+                        width: buttonGridButtonsWidth
                         height: 40
 
                         property string buttonText: "Kartenzahlung"
@@ -255,7 +322,7 @@ Page {
                             Text {
                                 anchors.centerIn: parent
                                 text: cardPaymentButton.buttonText
-                                font.pixelSize: 14
+                                font.pixelSize: buttonGridButtonTextSize
                                 font.bold: true
                                 color: "white"
                                 wrapMode: Text.Wrap
@@ -270,6 +337,7 @@ Page {
                         }
                     }
                 }
+
             }
 
             Rectangle {
@@ -282,9 +350,7 @@ Page {
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 5
-
                     spacing: 5
-
 
                     Text {
                         text: "Einkaufsliste:"
@@ -293,57 +359,73 @@ Page {
 
                     ListView {
                         id: shoppingCard
-
                         width: parent.width
                         Layout.fillHeight: true
-                        clip: false
+                        Layout.preferredHeight: Math.min(contentItem.childrenRect.height, parent.height * 0.4)
+                        clip: true
 
                         model: controller.currentSaleDetails
                         spacing: 2
 
-                        property real calculatedHeight: contentItem.childrenRect.height
-                        height: Math.min(calculatedHeight, parent.height)
-
                         delegate: Row {
                             spacing: 2
-                            Text { 
-                                text: modelData.name;
-
-                                verticalAlignment: Text.AlignVCenter
-                                height: parent.height
-                                width: 150 
-                            }
-                            Text { 
-                                text: modelData.quantity + "x";
-
-                                verticalAlignment: Text.AlignVCenter
-                                height: parent.height
-                                width: 40
-                            }
+                            Text { text: modelData.name; width: 150 }
+                            Text { text: modelData.quantity + "x"; width: 40 }
                             Button {
                                 width: 40
+                                height: 20
                                 text: "-"
-                                onClicked: {
-                                    controller.decreaseQuantity(modelData.id);
-                                }
+                                onClicked: controller.decreaseQuantity(modelData.id);
                             }
                         }
                     }
 
-                    Item { Layout.fillHeight: true } // Flexible element to make the stick to the right edge fo the screen
+                    Item {
+                        Layout.fillHeight: true
+                        Layout.preferredHeight: 10
+                    }
 
-                    Text {
-                        text: "Gesamt: " + controller.totalPrice.toFixed(2) + "€"
-                        font.bold: true
+                    ListView {
+                        id: appliedDiscountsList
+                        width: parent.width
+                        Layout.fillHeight: true
+                        Layout.preferredHeight: Math.min(contentItem.childrenRect.height, parent.height * 0.3)
+                        clip: true
+
+                        model: controller.appliedDiscounts
+                        spacing: 2
+
+                        delegate: Row {
+                            spacing: 2
+                            Text { text: modelData.name; width: 150 }
+                            Text { text: modelData.quantity + "x"; width: 40 }
+                            Button {
+                                width: 40
+                                height: 20
+                                text: "-"
+                                onClicked: controller.decreaseDiscountQuantity(modelData.id);
+                            }
+                        }
                     }
-                    Text {
-                        text: "Inklusive Becherpfand: " + controller.totalCupPawn.toFixed(2) + "€"
-                    }
-                    Text {
-                        text: "Zurückgegebene Becher: " + controller.returnedCups
+
+                    Column {
+                        Layout.fillWidth: true
+                        Layout.bottomMargin: 5
+
+                        Text {
+                            text: "Gesamt: " + controller.totalPrice.toFixed(2) + "€"
+                            font.bold: true
+                        }
+                        Text {
+                            text: "Inklusive Becherpfand: " + controller.totalCupPawn.toFixed(2) + "€"
+                        }
+                        Text {
+                            text: "Zurückgegebene Becher: " + controller.returnedCups
+                        }
                     }
                 }
             }
+
         }
 
     }

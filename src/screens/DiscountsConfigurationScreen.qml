@@ -49,7 +49,7 @@ Page {
 
                 text: "Name"
                 font.bold: true
-                Layout.preferredWidth: 125
+                Layout.preferredWidth: 160
             }
 
             Text {
@@ -57,7 +57,7 @@ Page {
 
                 text: "Typ"
                 font.bold: true
-                Layout.preferredWidth: 60
+                Layout.preferredWidth: 160
 
             }
 
@@ -74,20 +74,6 @@ Page {
                 text: "Limit"
                 font.bold: true
                 Layout.preferredWidth: 70
-            }
-
-            Text {
-                id: reusableColumnHeadline
-
-                text: "Wiederverwendbar"
-                font.bold: true
-            }
-
-            Text {
-                id: combinableColumnHeadline
-
-                text: "Kombinierbar"
-                font.bold: true
             }
 
             Text {
@@ -125,23 +111,13 @@ Page {
                     }
 
                     Text {
-                        text: value
+                        text: value !== -1 ? value : "-"
                         Layout.preferredWidth: valueColumnHeadline.width
                     }
 
                     Text {
-                        text: cocktailLimit > 0 ? cocktailLimit : "Kein Limit"
+                        text: cocktailLimit !== -1 ? cocktailLimit : "-"
                         Layout.preferredWidth: limitColumnHeadline.width
-                    }
-
-                    Text {
-                        text: reusable ? "Ja" : "Nein"
-                        Layout.preferredWidth: reusableColumnHeadline.width
-                    }
-
-                    Text {
-                        text: combinable ? "Ja" : "Nein"
-                        Layout.preferredWidth: combinableColumnHeadline.width
                     }
 
                     RowLayout {
