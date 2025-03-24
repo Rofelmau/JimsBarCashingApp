@@ -36,8 +36,7 @@ int DiscountModel::rowCount(const QModelIndex &parent) const
 
 QVariant DiscountModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_discounts.size())
-    {
+    if (!index.isValid() || index.row() >= m_discounts.size()) {
         return QVariant();
     }
 
@@ -57,6 +56,8 @@ QVariant DiscountModel::data(const QModelIndex &index, int role) const
         return discount->getValue();
     case CocktailLimitRole:
         return discount->getCocktailLimit();
+    case ActiveRole:
+        return discount->isActive();
     }
 
     return QVariant();
@@ -65,11 +66,12 @@ QVariant DiscountModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> DiscountModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[IdRole] = "id";
+    roles[IdRole] = "discountId";
     roles[NameRole] = "name";
     roles[TypeRole] = "type";
     roles[TypeValueRole] = "typeValue";
     roles[ValueRole] = "value";
     roles[CocktailLimitRole] = "cocktailLimit";
+    roles[ActiveRole] = "active";
     return roles;
 }

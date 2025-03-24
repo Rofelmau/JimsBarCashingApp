@@ -16,7 +16,8 @@ public:
         TypeRole,
         TypeValueRole,
         ValueRole,
-        CocktailLimitRole
+        CocktailLimitRole,
+        ActiveRole
     };
 
     explicit DiscountModel(QObject *parent = nullptr);

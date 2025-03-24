@@ -137,7 +137,7 @@ QVariantList CheckoutScreenController::availableDiscounts() const
     auto discounts = m_discountsRepository->getAllDiscounts();
 
     for (const auto &discount : discounts) {
-        if (discount) {
+        if (discount && discount->isActive()) {
             QVariantMap discountData;
             discountData["id"] = discount->getId();
             discountData["name"] = discount->getName();

@@ -7,7 +7,7 @@
 class Discount {
 public:
     explicit Discount();
-    Discount(int id, const QString &name, DiscountType type, double value = -1.0, int cocktailLimit = -1);
+    Discount(int id, const QString &name, DiscountType type, double value = -1.0, int cocktailLimit = -1, bool active = false);
 
     int getId() const;
     void setId(int id);
@@ -24,10 +24,14 @@ public:
     int getCocktailLimit() const;
     void setCocktailLimit(int cocktailLimit);
 
+    bool isActive() const;
+    void setActive(bool active);
+
 private:
     int m_id;
     QString m_name;
     DiscountType m_type;
     double m_value;
     int m_cocktailLimit;
+    bool m_active;
 };

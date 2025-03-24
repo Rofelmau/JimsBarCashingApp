@@ -16,6 +16,7 @@ public:
     bool deleteDiscount(int discountId);
 
     QSharedPointer<Discount> getDiscountById(int discountId);
+    bool updateDiscountActiveStatus(int discountId, bool active);
 
 private:
     QSharedPointer<DatabaseManager> m_dbManager;

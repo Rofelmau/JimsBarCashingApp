@@ -99,7 +99,7 @@ Dialog {
 
     function openForEdit(discount) {
         isEditMode = true;
-        discountId = discount.id;
+        discountId = discount.discountId;
         nameField.text = discount.name;
         typeComboBox.currentIndex = discount.typeValue;
         valueField.text = discount.value.toString();

@@ -19,6 +19,7 @@ public:
     Q_INVOKABLE void addDiscount(const QString &name, int type, double value, int cocktailLimit);
     Q_INVOKABLE void updateDiscount(int id, const QString &name, int type, double value, int cocktailLimit);
     Q_INVOKABLE void deleteDiscount(int id);
+    Q_INVOKABLE void toggleDiscountActiveStatus(int id, bool active);
 
 signals:
     void discountsChanged();

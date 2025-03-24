@@ -42,6 +42,14 @@ void DiscountsConfigurationScreenController::deleteDiscount(int id)
     }
 }
 
+void DiscountsConfigurationScreenController::toggleDiscountActiveStatus(int id, bool active)
+{
+    if (m_discountsRepository->updateDiscountActiveStatus(id, active))
+    {
+        loadDiscounts();
+    }
+}
+
 void DiscountsConfigurationScreenController::loadDiscounts()
 {
     auto discounts = m_discountsRepository->getAllDiscounts();

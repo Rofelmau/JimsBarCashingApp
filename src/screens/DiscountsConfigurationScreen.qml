@@ -77,6 +77,13 @@ Page {
             }
 
             Text {
+                id: activColumnHeadline
+
+                text: "Aktiviert"
+                font.bold: true
+            }
+
+            Text {
                 id: aktionColumnHeadline
 
                 text: ""
@@ -120,6 +127,12 @@ Page {
                         Layout.preferredWidth: limitColumnHeadline.width
                     }
 
+                    CheckBox {
+                        checked: active
+                        text: ""
+                        onClicked: DiscountsConfigurationScreenController.toggleDiscountActiveStatus(discountId, checked)
+                    }
+
                     RowLayout {
                         spacing: 5
                         Layout.preferredWidth: aktionColumnHeadline.width
@@ -133,7 +146,7 @@ Page {
 
                         Button {
                             text: "Löschen"
-                            onClicked: DiscountsConfigurationScreenController.deleteDiscount(id)
+                            onClicked: DiscountsConfigurationScreenController.deleteDiscount(discountId)
                         }
                     }
                 }

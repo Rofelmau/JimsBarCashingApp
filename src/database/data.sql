@@ -34,7 +34,7 @@ INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (5, 6);
 INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (6, 1);
 
 -- Insert initial discounts
-INSERT INTO Discounts (name, type, value, cocktail_limit) VALUES ('JULEICA', 0, 1.0, -1);
-INSERT INTO Discounts (name, type, value, cocktail_limit) VALUES ('Gruppenrabatt', 1, 20.0, 4);
-INSERT INTO Discounts (name, type, value, cocktail_limit) VALUES ('Mitarbeiter', 2, -1.0, -1);
-INSERT INTO Discounts (name, type, value, cocktail_limit) VALUES ('5%', 3, 5.0, -1);
+INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('JULEICA', 0, 1.0, -1, 1);
+INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('Gruppenrabatt', 1, 20.0, 4, 1);
+INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('Mitarbeiter', 2, -1.0, -1, 1);
+INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('5%', 3, 5.0, -1, 1);

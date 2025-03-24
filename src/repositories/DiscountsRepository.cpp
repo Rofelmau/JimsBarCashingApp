@@ -32,7 +32,7 @@ QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts()
 {
     QList<QSharedPointer<Discount>> discounts;
     QSqlQuery query(m_dbManager->database());
-    query.prepare("SELECT id, name, type, value, cocktail_limit FROM Discounts");
+    query.prepare("SELECT id, name, type, value, cocktail_limit, active FROM Discounts");
     if (query.exec()) {
         while (query.next()) {
             discounts.append(QSharedPointer<Discount>::create(
@@ -40,7 +40,8 @@ QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts()
                 query.value(1).toString(),
                 intToDiscountType(query.value(2).toInt()),
                 query.value(3).toDouble(),
-                query.value(4).toInt()
+                query.value(4).toInt(),
+                query.value(5).toBool()
             ));
         }
     } else {
@@ -113,4 +114,19 @@ QSharedPointer<Discount> DiscountsRepository::getDiscountById(int discountId)
         Logger::LogError("Failed to execute getDiscountById query. Error:" + query.lastError().text().toStdString());
     }
     return nullptr;
+}
+
+bool DiscountsRepository::updateDiscountActiveStatus(int discountId, bool active)
+{
+    QSqlQuery query(m_dbManager->database());
+    query.prepare("UPDATE Discounts SET active = ? WHERE id = ?");
+    query.addBindValue(active);
+    query.addBindValue(discountId);
+
+    if (!query.exec())
+    {
+        return false;
+    }
+
+    return true;
 }

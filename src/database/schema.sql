@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS Discounts (
     name TEXT,
     type INTEGER,
     value REAL,
-    cocktail_limit INTEGER
+    cocktail_limit INTEGER,
+    active INTEGER DEFAULT 1
 );
 
 -- SalesDiscounts table

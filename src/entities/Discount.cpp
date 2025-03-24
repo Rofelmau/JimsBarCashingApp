@@ -5,15 +5,17 @@ Discount::Discount()
     , m_name("")
     , m_value(0.0)
     , m_cocktailLimit(0)
+    , m_active(false)
 {
 }
 
-Discount::Discount(int id, const QString &name, DiscountType type, double value, int cocktailLimit)
+Discount::Discount(int id, const QString &name, DiscountType type, double value, int cocktailLimit, bool active)
     : m_id(id)
     , m_name(name)
     , m_type(type)
     , m_value(value)
     , m_cocktailLimit(cocktailLimit)
+    , m_active(active)
 {
 }
 
@@ -65,4 +67,14 @@ int Discount::getCocktailLimit() const
 void Discount::setCocktailLimit(int cocktailLimit)
 {
     m_cocktailLimit = cocktailLimit;
+}
+
+bool Discount::isActive() const
+{
+    return m_active;
+}
+
+void Discount::setActive(bool active)
+{
+    m_active = active;
 }
