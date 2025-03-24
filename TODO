@@ -1,8 +1,8 @@
 
-Discounts:
+✔ Discounts: @done(25-03-24 22:51)
   ✔ Add Possibility to Acitvate/Deactivate Discounts @started(25-03-24 18:28) @done(25-03-24 22:20) @lasted(3h52m6s)
   ✔ Show Info text for Discount depending on type @started(25-03-24 22:32) @done(25-03-24 22:43) @lasted(11m20s)
-  ☐ Add Headlines to input fields in Disocount Editing/Creating Dialog
+  ✔ Add Headlines to input fields in Disocount Editing/Creating Dialog @started(25-03-24 22:45) @done(25-03-24 22:50) @lasted(5m32s)
 Generel Settings:
   ☐ Add "Disabled" Funtionality for Cup Pawn
     ☐ Add Button in General Settings to Set Cup Pawn to 0€

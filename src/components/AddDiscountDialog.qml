@@ -26,12 +26,25 @@ Dialog {
         spacing: 10
         width: parent.width
 
+        Text {
+            text: "Name des Rabatts"
+            Layout.fillWidth: true
+        }
         TextField {
             id: nameField
             placeholderText: "Name des Rabatts"
             Layout.fillWidth: true
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            height: 5
+        }
+
+        Text {
+            text: "Rabatt Type"
+            Layout.fillWidth: true
+        }
         ComboBox {
             id: typeComboBox
             Layout.fillWidth: true
@@ -44,6 +57,15 @@ Dialog {
             }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            height: 5
+        }
+
+        Text {
+            text: "Wert des Rabatts"
+            Layout.fillWidth: true
+        }
         TextField {
             id: valueField
             placeholderText: "Wert des Rabatts"
@@ -52,12 +74,26 @@ Dialog {
             enabled: typeComboBox.currentIndex !== DiscountTypeHelper.ForFree
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            height: 5
+        }
+
+        Text {
+            text: "Cocktail-Menge"
+            Layout.fillWidth: true
+        }
         TextField {
             id: cocktailLimitField
-            placeholderText: "Cocktail-Limit (optional)"
+            placeholderText: "Cocktail-Menge"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             Layout.fillWidth: true
             enabled: typeComboBox.currentIndex === DiscountTypeHelper.GroupDiscount
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            height: 5
         }
 
         RowLayout {
