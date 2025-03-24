@@ -27,6 +27,7 @@ public:
     bool isActive() const;
     void setActive(bool active);
 
+    QString getInfoText() const;
 private:
     int m_id;
     QString m_name;

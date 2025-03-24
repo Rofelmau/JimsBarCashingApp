@@ -150,25 +150,41 @@ Page {
                                     GradientStop { position: 1.0; color: discountButton.gradientEnd }
                                 }
 
-                                Text {
+                                ColumnLayout {
                                     anchors.centerIn: parent
-                                    text: modelData.name
-                                    font.pixelSize: buttonGridButtonTextSize
-                                    font.bold: true
-                                    color: "white"
-                                    wrapMode: Text.Wrap
-                                    horizontalAlignment: Text.AlignHCenter
-                                    width: parent.width * 0.8
+                                    spacing: 2  // Abstand zwischen den Texten
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        text: modelData.name
+                                        font.pixelSize: buttonGridButtonTextSize
+                                        font.bold: true
+                                        color: "white"
+                                        wrapMode: Text.Wrap
+                                        horizontalAlignment: Text.AlignHCenter
+                                        Layout.fillWidth: true
+                                    }
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        text: modelData.infoText
+                                        font.pixelSize: 8
+                                        font.bold: false
+                                        color: "white"
+                                        wrapMode: Text.Wrap
+                                        horizontalAlignment: Text.AlignHCenter
+                                        Layout.fillWidth: true
+                                    }
                                 }
                             }
 
                             onClicked: {
-                                    controller.applyDiscount(modelData.id);
+                                controller.applyDiscount(modelData.id);
                             }
                         }
-
                     }
                 }
+
 
                 Row  {
                     width: parent.width

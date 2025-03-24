@@ -141,6 +141,7 @@ QVariantList CheckoutScreenController::availableDiscounts() const
             QVariantMap discountData;
             discountData["id"] = discount->getId();
             discountData["name"] = discount->getName();
+            discountData["infoText"] = discount->getInfoText();
             discountsList.append(discountData);
         }
     }

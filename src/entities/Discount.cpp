@@ -78,3 +78,35 @@ void Discount::setActive(bool active)
 {
     m_active = active;
 }
+
+QString Discount::getInfoText() const
+{
+    QString infoText{"(%1)"};
+    switch (m_type) {
+        case DiscountType::ClassicDiscount: {
+            QString extraInfo{"%0€ Rabatt auf 1 Cocktail"};
+            extraInfo = extraInfo.arg(QString::number(m_value));
+            infoText = infoText.arg(extraInfo);
+            break;
+        }
+        case DiscountType::GroupDiscount: {
+            QString extraInfo{"%0 Cocktails für %1€"};
+            extraInfo = extraInfo.arg(QString::number(m_cocktailLimit)).arg(QString::number(m_value));
+            infoText = infoText.arg(extraInfo);
+            break;
+        }
+        case DiscountType::ForFree: {
+            QString extraInfo{"1 Cocktial für 0€"};
+            infoText = infoText.arg(extraInfo);
+            break;
+        }
+        case DiscountType::PercentageDiscount: {
+            QString extraInfo{"%0% Rabatt auf 1 Cocktail"};
+            extraInfo = extraInfo.arg(QString::number(m_value));
+            infoText = infoText.arg(extraInfo);
+            break;
+        }
+    }
+
+    return infoText;
+}
