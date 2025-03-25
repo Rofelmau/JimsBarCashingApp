@@ -61,3 +61,11 @@ CREATE TABLE IF NOT EXISTS SalesDetails (
     FOREIGN KEY(sale_id) REFERENCES Sales(id),
     FOREIGN KEY(cocktail_id) REFERENCES Cocktails(id)
 );
+
+-- Weather table
+CREATE TABLE IF NOT EXISTS Weather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    condition INTEGER,
+    temperature INTEGER,
+    timestamp TEXT DEFAULT (datetime('now', 'utc')) -- ISO 8601 format in UTC
+);
