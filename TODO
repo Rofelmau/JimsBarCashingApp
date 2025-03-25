@@ -1,0 +1,33 @@
+
+✔ Discounts: @done(25-03-24 22:51)
+  ✔ Add Possibility to Acitvate/Deactivate Discounts @started(25-03-24 18:28) @done(25-03-24 22:20) @lasted(3h52m6s)
+  ✔ Show Info text for Discount depending on type @started(25-03-24 22:32) @done(25-03-24 22:43) @lasted(11m20s)
+  ✔ Add Headlines to input fields in Disocount Editing/Creating Dialog @started(25-03-24 22:45) @done(25-03-24 22:50) @lasted(5m32s)
+Generel Settings:
+  ☐ Add "Disabled" Funtionality for Cup Pawn
+    ☐ Add Button in General Settings to Set Cup Pawn to 0€
+    ☐ Hide Cup Pawn Related Items in Checkout screen if Cup Pawn is disabled
+  ☐ Make it more obvious how to edit the Generel Settings
+    ☐ Add Buttons to open the Edit Dialog
+Weather:
+  ☐ Ask user to set the Weather
+    ☐ Request Weather over internet.
+    ☐ Ask User to use ddetermiend weather (if conencted to internet) or to set it them selfs
+    ☐ Add Weather Info to Statistics
+Statistics:
+  ☐ Add Filter Option
+    ☐ Include Discount XY From Statistics
+  ☐ Refine Layout
+    ☐ Over-Time Datapoints should not be displayed on Y-Axis
+Cash balance:
+  ☐ Ask User to enter starting cash balance
+  ☐ Allow user to add/Remove Cash from the balance
+  ☐ Show Cash balance
+Checkout:
+  ☐ Add Ingredients to Ingridient Button
+  ☐ Add option to reduce the amount of returned cup
+Manage Cocktails:
+  ☐ Refine Screen Layoutng
+Import/Export:
+  ☐ Add Import/Export Functionality
+

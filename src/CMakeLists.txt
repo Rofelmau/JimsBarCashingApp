@@ -22,11 +22,14 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/database)
 include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
 include_directories(${spdlog_INCLUDE_DIRS})
+include_directories(${spdlog_SOURCE_DIR}/include)
 
 # Add subdirectories
 add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)
+add_subdirectory(models)
+
 
 # Add the main executable
 add_executable(MyProject 
@@ -42,6 +45,8 @@ qt5_add_resources(QT_RESOURCES qml.qrc)
 target_link_libraries(MyProject PRIVATE repositories Qt5::Core Qt5::Sql Qt5::Widgets Qt5::Qml)
 target_link_libraries(MyProject PRIVATE controllers Qt5::Core Qt5::Widgets Qt5::Qml)
 target_link_libraries(MyProject PRIVATE spdlog::spdlog)
+
+target_include_directories(MyProject PRIVATE ${spdlog_SOURCE_DIR}/include)
 
 # Ensure the database is created before building the project
 add_dependencies(MyProject create_database)

@@ -1,5 +1,6 @@
 #include "StatisticsScreenController.h"
 
+#include "../entities/StatisticsData.h"
 #include "SalesRepository.h"
 
 #include "Logger.h"
@@ -57,9 +58,9 @@ QVariantList StatisticsScreenController::salesData() const
     QVariantList result;
     for (const auto &entry : m_salesDataList) {
         QVariantMap map;
-        map["cocktailName"] = entry.cocktailName;
-        map["quantitySold"] = entry.quantitySold;
-        map["pricePerCocktail"] = entry.pricePerCocktail;
+        map["cocktailName"] = entry.getCocktailName();
+        map["quantitySold"] = entry.getQuantitySold();
+        map["pricePerCocktail"] = entry.getPricePerCocktail();
         result.append(map);
     }
     return result;
@@ -70,8 +71,8 @@ QVariantList StatisticsScreenController::salesDataByTime() const
     QVariantList result;
     for (const auto &entry : m_salesDataByTimeList) {
         QVariantMap map;
-        map["timePeriod"] = entry.timePeriod;
-        map["quantitySold"] = entry.quantitySold;
+        map["timePeriod"] = entry.getTimePeriod();
+        map["quantitySold"] = entry.getQuantitySold();
         result.append(map);
     }
     return result;
@@ -81,7 +82,7 @@ double StatisticsScreenController::getTotalRevenue() const
 {
     double totalRevenue = 0.0;
     for (const auto &entry : m_salesDataList) {
-        totalRevenue += entry.quantitySold * entry.pricePerCocktail;
+        totalRevenue += entry.getTotalPrice();
     }
     return totalRevenue;
 }
@@ -90,7 +91,7 @@ int StatisticsScreenController::getTotalCocktailsSold() const
 {
     int totalSold = 0;
     for (const auto &entry : m_salesDataList) {
-        totalSold += entry.quantitySold;
+        totalSold += entry.getQuantitySold();
     }
     return totalSold;
 }
@@ -100,9 +101,9 @@ QString StatisticsScreenController::getBestSellerCocktail() const
     QString bestSeller;
     int maxSold = 0;
     for (const auto &entry : m_salesDataList) {
-        if (entry.quantitySold > maxSold) {
-            maxSold = entry.quantitySold;
-            bestSeller = entry.cocktailName;
+        if (entry.getQuantitySold() > maxSold) {
+            maxSold = entry.getQuantitySold();
+            bestSeller = entry.getCocktailName();
         }
     }
     return bestSeller;

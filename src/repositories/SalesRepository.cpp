@@ -1,12 +1,13 @@
 #include "SalesRepository.h"
 
 #include "../Logger.h"
+#include "../entities/StatisticsData.h"
+#include "../entities/StatisticsDataByTime.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
-#include <QDebug>
 #include <QTimeZone>
 
 SalesRepository::SalesRepository(QSharedPointer<DatabaseManager> dbManager, QObject *parent)
@@ -30,6 +31,7 @@ void SalesRepository::saveSale(const Sale &sale)
     query.bindValue(":returned_cups", sale.getReturnedCups());
     if (!query.exec()) {
         Logger::LogError("Failed to save sale: " + query.lastError().text().toStdString());
+        return;
     }
 
     int saleId = query.lastInsertId().toInt();
@@ -44,11 +46,25 @@ void SalesRepository::saveSale(const Sale &sale)
             Logger::LogError("Failed to save sale detail: " + query.lastError().text().toStdString());
         }
     }
+
+    for (const auto &discount : sale.getAppliedDiscounts()) {
+        if (!discount) {
+            continue;
+        }
+        query.prepare("INSERT INTO SalesDiscounts (sale_id, discount_id, quantity) "
+                      "VALUES (:sale_id, :discount_id, :quantity)");
+        query.bindValue(":sale_id", saleId);
+        query.bindValue(":discount_id", discount->getId());
+        query.bindValue(":quantity", sale.getDiscountQuantity(discount->getId()));
+        if (!query.exec()) {
+            Logger::LogError("Failed to save sale discount: " + query.lastError().text().toStdString());
+        }
+    }
 }
 
-QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QString &endDate)
+QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, const QString &endDate)
 {
-    QList<SaleData> salesData;
+    QList<StatisticsData> salesData;
 
     QSqlDatabase db = m_databaseManager->database();
     QSqlQuery query(db);
@@ -68,7 +84,8 @@ QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QS
     query.prepare(R"(
         SELECT Cocktails.name AS cocktailName, 
                SUM(SalesDetails.quantity) AS quantitySold,
-               Sales.price_per_cocktail AS pricePerCocktail
+               Sales.price_per_cocktail AS pricePerCocktail,
+               SUM(Sales.total_price) AS totalPrice
         FROM Sales
         INNER JOIN SalesDetails ON Sales.id = SalesDetails.sale_id
         INNER JOIN Cocktails ON SalesDetails.cocktail_id = Cocktails.id
@@ -86,19 +103,20 @@ QList<SaleData> SalesRepository::getSalesData(const QString &startDate, const QS
     }
 
     while (query.next()) {
-        SaleData data;
-        data.cocktailName = query.value("cocktailName").toString();
-        data.quantitySold = query.value("quantitySold").toInt();
-        data.pricePerCocktail = query.value("pricePerCocktail").toDouble();
+        StatisticsData data; // Use StatisticsData
+        data.setCocktailName(query.value("cocktailName").toString());
+        data.setQuantitySold(query.value("quantitySold").toInt());
+        data.setPricePerCocktail(query.value("pricePerCocktail").toDouble());
+        data.setTotalPrice(query.value("totalPrice").toDouble());
         salesData.append(data);
     }
 
     return salesData;
 }
 
-QList<SaleDataByTime> SalesRepository::getSalesDataByTime(const QString &startDate, const QString &endDate)
+QList<StatisticsDataByTime> SalesRepository::getSalesDataByTime(const QString &startDate, const QString &endDate)
 {
-    QList<SaleDataByTime> salesDataByTime;
+    QList<StatisticsDataByTime> salesDataByTime;
 
     QSqlDatabase db = m_databaseManager->database();
     QSqlQuery query(db);
@@ -134,9 +152,9 @@ QList<SaleDataByTime> SalesRepository::getSalesDataByTime(const QString &startDa
     }
 
     while (query.next()) {
-        SaleDataByTime data;
-        data.timePeriod = query.value("timePeriod").toString();
-        data.quantitySold = query.value("quantitySold").toInt();
+        StatisticsDataByTime data;
+        data.setTimePeriod(query.value("timePeriod").toString());
+        data.setQuantitySold(query.value("quantitySold").toInt());
         salesDataByTime.append(data);
     }
 

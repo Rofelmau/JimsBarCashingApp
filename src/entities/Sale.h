@@ -1,9 +1,15 @@
 #pragma once
 
-#include <QDateTime>
-#include <QVector>
-#include <QSharedPointer>
 #include "Cocktail.h"
+#include "Discount.h"
+
+#include <QDateTime>
+#include <QPair>
+#include <QSet>
+#include <QSharedPointer>
+#include <QVector>
+#include <QMap>
+#include <QHash>
 
 enum class PaymentMethod {
     Undefined = -1,
@@ -40,6 +46,7 @@ public:
     QVector<SaleDetail> getDetails() const;
     PaymentMethod getPaymentMethod() const;
 
+    double calculateDiscount(double totalCocktailPrice);
     void updateTotalPrice();
 
     void setPricePerCocktail(double price);
@@ -53,6 +60,13 @@ public:
     void incrementReturnedCups();
     int getReturnedCups() const;
 
+    void incerementDiscountQuantity(QSharedPointer<Discount> discount);
+    void decrementDiscountQuantity(QSharedPointer<Discount> discount);
+    QSet<QSharedPointer<Discount>> getAppliedDiscounts() const;
+    int getDiscountQuantity(int discountId) const;
+
+    int getTotalCocktailCount() const;
+
 private:
     int id;
     QDateTime timestamp;
@@ -62,4 +76,7 @@ private:
     QVector<SaleDetail> details;
     PaymentMethod m_paymentMethod;
     int returnedCups = 0;
+
+    QHash<int, int> discountQuantities;
+    QHash<int, QSharedPointer<Discount>> discountLookup;
 };

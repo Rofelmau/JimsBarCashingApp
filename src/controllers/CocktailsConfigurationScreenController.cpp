@@ -2,7 +2,8 @@
 
 #include <Cocktail.h>
 
-#include <QDebug>
+#include "../Logger.h"
+
 #include <algorithm>
 
 CocktailsConfigurationScreenController::CocktailsConfigurationScreenController(QSharedPointer<CocktailRepository> cocktailRepository, QObject *parent)
@@ -33,7 +34,7 @@ QVariantList CocktailsConfigurationScreenController::cocktails() const
 
 void CocktailsConfigurationScreenController::editCocktail(const int id, const QString &name, const QStringList &ingredients) {
     if (name.isEmpty()) {
-        qWarning() << "Cocktail name cannot be empty!";
+        Logger::LogWarn("Cocktail name cannot be empty!");
         return;
     }
 
@@ -50,7 +51,7 @@ void CocktailsConfigurationScreenController::deleteCocktail(const int id)
 void CocktailsConfigurationScreenController::addNewCocktail(const QString &name, const QStringList &ingredients)
 {
     if (name.isEmpty()) {
-        qWarning() << "Cocktail name cannot be empty!";
+        Logger::LogWarn("Cocktail name cannot be empty!");
         return;
     }
     m_cocktailRepository->addCocktail(name, ingredients);

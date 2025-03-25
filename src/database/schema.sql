@@ -29,7 +29,18 @@ CREATE TABLE IF NOT EXISTS CocktailIngredients (
 CREATE TABLE IF NOT EXISTS Discounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
-    percentage REAL
+    type INTEGER,
+    value REAL,
+    cocktail_limit INTEGER,
+    active INTEGER DEFAULT 1
+);
+
+-- SalesDiscounts table
+CREATE TABLE IF NOT EXISTS SalesDiscounts (
+    sale_id INTEGER,
+    discount_id INTEGER,
+    FOREIGN KEY(sale_id) REFERENCES Sales(id),
+    FOREIGN KEY(discount_id) REFERENCES Discounts(id)
 );
 
 -- Sales table

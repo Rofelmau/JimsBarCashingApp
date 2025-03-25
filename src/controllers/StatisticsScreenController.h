@@ -4,6 +4,8 @@
 #include <QSharedPointer>
 #include <QVariantList>
 #include "../repositories/SalesRepository.h"
+#include "../entities/StatisticsData.h"
+#include "../entities/StatisticsDataByTime.h"
 
 class StatisticsScreenController : public QObject
 {
@@ -32,6 +34,6 @@ signals:
 
 private:
     QSharedPointer<SalesRepository> m_salesRepository;
-    QList<SaleData> m_salesDataList;
-    QList<SaleDataByTime> m_salesDataByTimeList;
+    QList<StatisticsData> m_salesDataList;
+    QList<StatisticsDataByTime> m_salesDataByTimeList;
 };
