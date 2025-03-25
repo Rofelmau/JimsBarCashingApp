@@ -35,10 +35,10 @@ void WeatherSettingsScreenController::fetchLatestWeather()
     if (!weatherDataList.isEmpty()) {
         const auto &latestWeather = weatherDataList.first();
 
-        // Check if the weather data is from today
-        QDateTime weatherTimestamp = QDateTime::fromString(latestWeather.getTimestamp(), Qt::ISODate);
+        const QDateTime weatherTimestamp = QDateTime::fromString(latestWeather.getTimestamp(), Qt::ISODate);
 
-        if (weatherTimestamp.date() == QDate::currentDate()) {
+        const QDate currentUtcDate = QDateTime::currentDateTimeUtc().date();
+        if (weatherTimestamp.date() == currentUtcDate) {
             m_hasWeatherData = true;
 
             m_lastWeatherCondition = WeatherConditionHelper::weatherConditionToString(latestWeather.getCondition());
