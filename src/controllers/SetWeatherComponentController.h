@@ -27,6 +27,8 @@ public:
 
     Q_INVOKABLE void fetchWeatherForLocation();
     Q_INVOKABLE void saveWeatherData();
+    Q_INVOKABLE void setManualWeatherCondition(WeatherCondition condition);
+    Q_INVOKABLE void setManualTemperatureCategory(TemperatureCategory category);
 
 signals:
     void weatherDataChanged();

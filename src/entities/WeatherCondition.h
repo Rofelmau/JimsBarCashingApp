@@ -3,6 +3,8 @@
 #include <QMetaEnum>
 #include <QObject>
 #include <QString>
+#include <QList>
+#include <QVariant>
 
 class WeatherConditionHelper : public QObject
 {
@@ -20,6 +22,8 @@ public:
     explicit WeatherConditionHelper(QObject *parent = nullptr);
 
     Q_INVOKABLE static QString weatherConditionToString(WeatherCondition condition);
+
+    Q_INVOKABLE static QVariantList values();
 };
 
 using WeatherCondition = WeatherConditionHelper::WeatherCondition;

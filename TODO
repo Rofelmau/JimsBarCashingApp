@@ -12,7 +12,7 @@ Generel Settings:
 Weather:
   ☐ Ask user to set the Weather
     ✔ Request Weather over internet. @started(25-03-24 23:02) @done(25-03-25 23:23) @lasted(1d21m30s)
-    ☐ Ask User to use determiend weather (if conencted to internet) or to set it them selfs
+    ✔ Ask User to use determiend weather (if conencted to internet) or to set it them selfs @started(25-03-25 23:24) @done(25-03-26 01:03) @lasted(1h39m17s)
     ☐ Add Weather Info to Statistics
 Statistics:
   ☐ Add Filter Option

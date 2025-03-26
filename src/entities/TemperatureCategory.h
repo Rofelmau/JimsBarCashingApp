@@ -3,6 +3,7 @@
 #include <QMetaEnum>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 class TemperatureCategoryHelper : public QObject
 {
@@ -20,6 +21,8 @@ public:
     explicit TemperatureCategoryHelper(QObject *parent = nullptr);
 
     Q_INVOKABLE static QString temperatureCategoryToString(TemperatureCategory category);
+
+    Q_INVOKABLE static QVariantList values();
 };
 
 using TemperatureCategory = TemperatureCategoryHelper::TemperatureCategory;

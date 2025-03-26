@@ -11,7 +11,7 @@ Page {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 20
+        spacing: 5
 
         RowLayout {
             Layout.alignment: Qt.AlignLeft

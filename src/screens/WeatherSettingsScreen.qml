@@ -13,16 +13,15 @@ Page {
         controller.fetchLatestWeather();
     }
 
+    Button {
+        id: backButton
+        text: "Zurück"
+        onClicked: stackView.pop()
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 20
-
-        Button {
-            id: backButton
-            text: "Zurück"
-            Layout.preferredHeight: implicitHeight
-            onClicked: stackView.pop()
-        }
 
         Text {
             text: controller.hasWeatherData
@@ -31,11 +30,13 @@ Page {
             font.pointSize: 16
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
+            Layout.alignment: Qt.AlignHCenter
         }
 
         Button {
             text: controller.hasWeatherData ? "Wetter aktualisieren" : "Wetter festlegen"
             onClicked: setWeatherDialog.visible = true
+            Layout.alignment: Qt.AlignHCenter
         }
 
         SetWeatherComponent {

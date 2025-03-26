@@ -72,8 +72,20 @@ void SetWeatherComponentController::saveWeatherData()
 {
     WeatherData data(m_weatherCondition, m_temperatureCategory, QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
     if (m_weatherRepository->saveWeatherData(data)) {
-        Logger::LogInfo("Weather data saved successfully.");
+        Logger::LogInfo("Weather data saved successfully with timestamp: " + data.getTimestamp().toStdString());
     } else {
         Logger::LogWarn("Failed to save weather data.");
     }
+}
+
+void SetWeatherComponentController::setManualWeatherCondition(WeatherCondition condition)
+{
+    m_weatherCondition = condition;
+    emit weatherDataChanged();
+}
+
+void SetWeatherComponentController::setManualTemperatureCategory(TemperatureCategory category)
+{
+    m_temperatureCategory = category;
+    emit weatherDataChanged();
 }

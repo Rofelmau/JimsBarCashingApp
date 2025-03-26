@@ -49,7 +49,6 @@ void WeatherService::onWeatherReply(QNetworkReply *reply)
     TemperatureCategory temperatureCategory = categorizeTemperature(temperature);
     WeatherCondition conditionCategory = categorizeCondition(weatherCode);
 
-    qDebug() << "Wetter:" << static_cast<int>(conditionCategory) << ", Temperatur:" << static_cast<int>(temperatureCategory);
     emit weatherFetched(conditionCategory, temperatureCategory);
 
     reply->deleteLater();
