@@ -14,6 +14,7 @@ public:
 
     bool saveWeatherData(const WeatherData &data);
     QList<WeatherData> fetchWeatherData();
+    QList<WeatherData> fetchWeatherDataByTime(const QString &startDate, const QString &endDate);
 
 signals:
     void weatherDataUpdated();

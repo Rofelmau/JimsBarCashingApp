@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     CheckoutScreenController checkoutScreenController{settingsRepository, cocktailRepository, salesRepository, discountsRepository};
     engine.rootContext()->setContextProperty("CheckoutScreenController", &checkoutScreenController);
 
-    StatisticsScreenController statisticsScreenController{salesRepository};
+    StatisticsScreenController statisticsScreenController{salesRepository, weatherRepository};
     engine.rootContext()->setContextProperty("StatisticsScreenController", &statisticsScreenController);
 
     DiscountsConfigurationScreenController discountsConfigurationScreenController{discountsRepository};

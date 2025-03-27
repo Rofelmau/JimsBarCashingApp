@@ -1,4 +1,6 @@
 #include "WeatherRepository.h"
+
+#include <QDate>
 #include <QSqlQuery>
 #include <QVariant>
 
@@ -34,6 +36,40 @@ QList<WeatherData> WeatherRepository::fetchWeatherData()
             TemperatureCategory temperature = static_cast<TemperatureCategory>(query.value(1).toInt());
             QString timestamp = query.value(2).toString();
             weatherDataList.append(WeatherData(condition, temperature, timestamp));
+        }
+    }
+    return weatherDataList;
+}
+
+QList<WeatherData> WeatherRepository::fetchWeatherDataByTime(const QString &startDate, const QString &endDate)
+{
+    QList<WeatherData> weatherDataList;
+    QSqlQuery query(m_dbManager->database());
+    query.prepare(R"(
+        SELECT strftime('%Y-%m-%d %H:00', timestamp) AS hourPeriod,
+               temperature,
+               condition
+        FROM Weather
+        WHERE timestamp BETWEEN ? AND ?
+        GROUP BY hourPeriod
+        ORDER BY hourPeriod ASC
+    )");
+
+    QDate startQDate = QDate::fromString(startDate, "yyyy-MM-dd");
+    QDate endQDate = QDate::fromString(endDate, "yyyy-MM-dd");
+
+    QDateTime startDateTime = startQDate.startOfDay(Qt::UTC);
+    QDateTime endDateTime = endQDate.endOfDay(Qt::UTC);
+
+    query.addBindValue(startDateTime.toString(Qt::ISODate));
+    query.addBindValue(endDateTime.toString(Qt::ISODate));
+
+    if (query.exec()) {
+        while (query.next()) {
+            const QString hourPeriod = query.value("hourPeriod").toString();
+            const TemperatureCategory temperature = static_cast<TemperatureCategory>(query.value("temperature").toInt());
+            const WeatherCondition condition = static_cast<WeatherCondition>(query.value("condition").toInt());
+            weatherDataList.append(WeatherData(condition, temperature, hourPeriod));
         }
     }
     return weatherDataList;
