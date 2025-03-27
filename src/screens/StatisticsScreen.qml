@@ -48,7 +48,7 @@ Page {
                 visible: false
             }
 
-            Item { Layout.fillWidth: true } // Flexible element to make the toggleChartButton stick to the right edge fo the screen
+            Item { Layout.fillWidth: true }
 
             Button {
                 id: setEvaluationDateForTodayButton
@@ -64,11 +64,11 @@ Page {
                 text: "Diese Woche"
                 onClicked: {
                     let today = new Date();
-                    let dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                    let dayOfWeek = today.getDay();
                     let lastMonday = new Date(today);
-                    lastMonday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Adjust to last Monday
+                    lastMonday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
                     let nextSunday = new Date(today);
-                    nextSunday.setDate(today.getDate() + (dayOfWeek === 0 ? 0 : 7 - dayOfWeek)); // Adjust to next Sunday
+                    nextSunday.setDate(today.getDate() + (dayOfWeek === 0 ? 0 : 7 - dayOfWeek));
 
                     startDatePopup.selectedDate = Qt.formatDate(lastMonday, "dd.MM.yyyy");
                     endDatePopup.selectedDate = Qt.formatDate(nextSunday, "dd.MM.yyyy");
@@ -80,7 +80,7 @@ Page {
                 onClicked: {
                     let today = new Date();
                     let firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                    let lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the current month
+                    let lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
                     startDatePopup.selectedDate = Qt.formatDate(firstDayOfMonth, "dd.MM.yyyy");
                     endDatePopup.selectedDate = Qt.formatDate(lastDayOfMonth, "dd.MM.yyyy");
@@ -111,7 +111,7 @@ Page {
                 }
             }
 
-            Item { Layout.fillWidth: true } // Flexible element to make the toggleChartButton stick to the right edge fo the screen
+            Item { Layout.fillWidth: true }
 
             Button {
                 id: toggleChartButton
@@ -243,6 +243,7 @@ Page {
                 visible: false
 
                 property var salesData: StatisticsScreenController.salesDataByTime
+                property var weatherData: StatisticsScreenController.weatherDataByTime
 
                 Rectangle {
                     anchors.fill: parent
@@ -259,51 +260,76 @@ Page {
                         let ctx = lineChartCanvas.getContext("2d");
                         ctx.clearRect(0, 0, lineChartCanvas.width, lineChartCanvas.height);
 
-                        let chartWidth = lineChartCanvas.width - 80;
-                        let chartHeight = lineChartCanvas.height - 80;
+                        let chartWidth = lineChartCanvas.width - 100;
+                        let chartHeight = lineChartCanvas.height - 100;
                         let maxQuantity = 0;
 
-                        let data = lineChartCanvas.parent.salesData;
+                        let salesData = lineChartCanvas.parent.salesData;
+                        let weatherData = lineChartCanvas.parent.weatherData;
 
-                        if (data.length === 0) return;
+                        if (salesData.length === 0 && weatherData.length === 0) return;
 
-                        // Find the maximum quantity for scaling
-                        for (let i = 0; i < data.length; i++) {
-                            maxQuantity = Math.max(maxQuantity, data[i].quantitySold);
+                        let allTimestamps = [...new Set(
+                            salesData.map(d => d.timePeriod).concat(weatherData.map(d => d.timePeriod))
+                        )].sort();
+
+                        if (allTimestamps.length === 0) return;
+
+                        for (let i = 0; i < salesData.length; i++) {
+                            maxQuantity = Math.max(maxQuantity, salesData[i].quantitySold);
                         }
 
-                        if (maxQuantity === 0) return; // Avoid division by zero
+                        if (maxQuantity === 0) return;
 
-                        let xSpacing = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth; // Adjust for single data point
+                        let xPadding = 20;
+                        let xSpacing = allTimestamps.length > 1 ? (chartWidth - xPadding) / (allTimestamps.length - 1) : chartWidth;
                         let yScale = chartHeight / maxQuantity;
 
                         ctx.strokeStyle = "#3498db";
                         ctx.lineWidth = 2;
                         ctx.beginPath();
 
-                        for (let i = 0; i < data.length; i++) {
-                            let x = 40 + (data.length > 1 ? i * xSpacing : chartWidth / 2); // Center single point
-                            let y = chartHeight - data[i].quantitySold * yScale + 40;
+                        for (let i = 0; i < allTimestamps.length; i++) {
+                            let timestamp = allTimestamps[i];
+                            let salesEntry = salesData.find(d => d.timePeriod === timestamp);
+                            if (salesEntry) {
+                                let x = 40 + xPadding + i * xSpacing;
+                                let y = chartHeight - salesEntry.quantitySold * yScale + 40;
 
-                            if (i === 0) {
-                                ctx.moveTo(x, y);
-                            } else {
-                                ctx.lineTo(x, y);
+                                if (i === 0 || !salesData.find(d => d.timePeriod === allTimestamps[i - 1])) {
+                                    ctx.moveTo(x, y);
+                                } else {
+                                    ctx.lineTo(x, y);
+                                }
+
+                                ctx.fillStyle = "#3498db";
+                                ctx.beginPath();
+                                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                                ctx.fill();
+
+                                ctx.fillStyle = "#000";
+                                ctx.font = "12px sans-serif";
+                                ctx.textAlign = "center";
+                                ctx.fillText(salesEntry.quantitySold, x, y - 10);
                             }
-
-                            ctx.fillStyle = "#3498db";
-                            ctx.beginPath();
-                            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                            ctx.fill();
-
-                            // Add labels for each data point
-                            ctx.fillStyle = "#000";
-                            ctx.font = "12px sans-serif";
-                            ctx.textAlign = "center";
-                            ctx.fillText(data[i].quantitySold, x, y - 10); // Quantity above the point
-                            ctx.fillText(data[i].timePeriod, x, chartHeight + 60); // Date and hour below the chart
                         }
                         ctx.stroke();
+
+                        for (let i = 0; i < allTimestamps.length; i++) {
+                            let timestamp = allTimestamps[i];
+                            let weatherEntry = weatherData.find(d => d.timePeriod === timestamp);
+                            let x = 40 + xPadding + i * xSpacing;
+
+                            if (weatherEntry) {
+                                ctx.fillStyle = "#000";
+                                ctx.font = "10px sans-serif";
+                                ctx.textAlign = "center";
+                                ctx.fillText(timestamp, x, chartHeight + 65);
+
+                                ctx.fillText(weatherEntry.temperature, x, chartHeight + 80);
+                                ctx.fillText(weatherEntry.condition, x, chartHeight + 95);
+                            }
+                        }
 
                         ctx.strokeStyle = "#000";
                         ctx.lineWidth = 1;
@@ -327,6 +353,9 @@ Page {
                     function onSalesDataByTimeChanged() {
                         lineChartCanvas.requestPaint();
                     }
+                    function onWeatherDataByTimeChanged() {
+                        lineChartCanvas.requestPaint();
+                    }
                 }
             }
         }
@@ -343,7 +372,7 @@ Page {
         id: startDatePopup
         onSelectedDateChanged: {
             startDateButton.text = selectedDate;
-            dateRangeWarning.visible = false; // Reset warning visibility
+            dateRangeWarning.visible = false;
             StatisticsScreenController.fetchCocktailSales(startDatePopup.selectedDate, endDatePopup.selectedDate);
         }
     }
@@ -352,7 +381,7 @@ Page {
         id: endDatePopup
         onSelectedDateChanged: {
             endDateButton.text = selectedDate;
-            dateRangeWarning.visible = false; // Reset warning visibility
+            dateRangeWarning.visible = false;
             StatisticsScreenController.fetchCocktailSales(startDatePopup.selectedDate, endDatePopup.selectedDate);
         }
     }

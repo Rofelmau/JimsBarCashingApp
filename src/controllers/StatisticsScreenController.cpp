@@ -2,13 +2,16 @@
 
 #include "../entities/StatisticsData.h"
 #include "SalesRepository.h"
+#include "WeatherRepository.h"
 
 #include "Logger.h"
 
 #include <QDate>
 
-StatisticsScreenController::StatisticsScreenController(QSharedPointer<SalesRepository> salesRepository, QObject *parent)
-    : QObject(parent), m_salesRepository(salesRepository)
+StatisticsScreenController::StatisticsScreenController(QSharedPointer<SalesRepository> salesRepository, QSharedPointer<WeatherRepository> weatherRepository, QObject *parent)
+    : QObject(parent)
+    , m_salesRepository(salesRepository)
+    , m_weatherRepository(weatherRepository)
 {
 }
 
@@ -50,6 +53,16 @@ void StatisticsScreenController::fetchCocktailSales(const QString &startDate, co
         Logger::LogInfo("Fetched sales data by time: " + std::to_string(m_salesDataByTimeList.size()) + " entries.");
     }
 
+    // Fetch weather data from the repository
+    m_weatherDataByTimeList = m_weatherRepository->fetchWeatherDataByTime(formattedStartDate, formattedEndDate);
+
+    if (m_weatherDataByTimeList.isEmpty()) {
+        Logger::LogInfo("No weather data found for the given date range.");
+    } else {
+        Logger::LogInfo("Fetched weather data: " + std::to_string(m_weatherDataByTimeList.size()) + " entries.");
+    }
+
+    emit weatherDataByTimeChanged();
     emit salesDataChanged();
 }
 
@@ -73,6 +86,19 @@ QVariantList StatisticsScreenController::salesDataByTime() const
         QVariantMap map;
         map["timePeriod"] = entry.getTimePeriod();
         map["quantitySold"] = entry.getQuantitySold();
+        result.append(map);
+    }
+    return result;
+}
+
+QVariantList StatisticsScreenController::weatherDataByTime() const
+{
+    QVariantList result;
+    for (const auto &entry : m_weatherDataByTimeList) {
+        QVariantMap map;
+        map["timePeriod"] = entry.getTimestamp();
+        map["temperature"] = TemperatureCategoryHelper::temperatureCategoryToString(entry.getTemperature());
+        map["condition"] = WeatherConditionHelper::weatherConditionToString(entry.getCondition());
         result.append(map);
     }
     return result;

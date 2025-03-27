@@ -7,6 +7,9 @@ add_library(entities
     Sale.cpp
     StatisticsData.cpp
     StatisticsDataByTime.cpp
+    TemperatureCategory.cpp
+    WeatherCondition.cpp
+    WeatherData.cpp
 )
 
 # Include directories

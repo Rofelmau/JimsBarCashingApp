@@ -21,7 +21,6 @@ void SalesRepository::saveSale(const Sale &sale)
     QSqlDatabase db = m_databaseManager->database();
     QSqlQuery query(db);
 
-    // Insert the sale
     query.prepare("INSERT INTO Sales (timestamp, payment_method, price_per_cocktail, total_price, returned_cups) "
                   "VALUES (:timestamp, :payment_method, :price_per_cocktail, :total_price, :returned_cups)");
     query.bindValue(":timestamp", sale.getTimestamp().toUTC().toString(Qt::ISODate)); // Save in UTC ISO 8601 format
@@ -65,7 +64,6 @@ void SalesRepository::saveSale(const Sale &sale)
 QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, const QString &endDate)
 {
     QList<StatisticsData> salesData;
-
     QSqlDatabase db = m_databaseManager->database();
     QSqlQuery query(db);
 
@@ -74,7 +72,6 @@ QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, co
         return salesData;
     }
 
-    // Convert to UTC ISO 8601 format
     QDate startQDate = QDate::fromString(startDate, "yyyy-MM-dd");
     QDate endQDate = QDate::fromString(endDate, "yyyy-MM-dd");
 
@@ -103,7 +100,7 @@ QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, co
     }
 
     while (query.next()) {
-        StatisticsData data; // Use StatisticsData
+        StatisticsData data;
         data.setCocktailName(query.value("cocktailName").toString());
         data.setQuantitySold(query.value("quantitySold").toInt());
         data.setPricePerCocktail(query.value("pricePerCocktail").toDouble());
@@ -117,7 +114,6 @@ QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, co
 QList<StatisticsDataByTime> SalesRepository::getSalesDataByTime(const QString &startDate, const QString &endDate)
 {
     QList<StatisticsDataByTime> salesDataByTime;
-
     QSqlDatabase db = m_databaseManager->database();
     QSqlQuery query(db);
 
@@ -136,7 +132,6 @@ QList<StatisticsDataByTime> SalesRepository::getSalesDataByTime(const QString &s
         ORDER BY timePeriod ASC
     )");
 
-    // Convert to UTC ISO 8601 format
     QDate startQDate = QDate::fromString(startDate, "yyyy-MM-dd");
     QDate endQDate = QDate::fromString(endDate, "yyyy-MM-dd");
 

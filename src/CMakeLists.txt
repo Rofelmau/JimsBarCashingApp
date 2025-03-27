@@ -21,6 +21,7 @@ FetchContent_MakeAvailable(spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/database)
 include_directories(${CMAKE_SOURCE_DIR}/src/repositories)
+include_directories(${CMAKE_SOURCE_DIR}/src/services)
 include_directories(${spdlog_INCLUDE_DIRS})
 include_directories(${spdlog_SOURCE_DIR}/include)
 
@@ -29,7 +30,7 @@ add_subdirectory(entities)
 add_subdirectory(repositories)
 add_subdirectory(controllers)
 add_subdirectory(models)
-
+add_subdirectory(services)
 
 # Add the main executable
 add_executable(MyProject 

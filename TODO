@@ -10,10 +10,11 @@ Generel Settings:
   ☐ Make it more obvious how to edit the Generel Settings
     ☐ Add Buttons to open the Edit Dialog
 Weather:
-  ☐ Ask user to set the Weather
-    ☐ Request Weather over internet.
-    ☐ Ask User to use ddetermiend weather (if conencted to internet) or to set it them selfs
-    ☐ Add Weather Info to Statistics
+  ✔ Ask user to set the Weather @done(25-03-27 16:25)
+    ✔ Request Weather over internet. @started(25-03-24 23:02) @done(25-03-25 23:23) @lasted(1d21m30s)
+    ✔ Ask User to use determiend weather (if conencted to internet) or to set it them selfs @started(25-03-25 23:24) @done(25-03-26 01:03) @lasted(1h39m17s)
+    ✔ Add Weather Info to Statistics @started(25-03-26 01:06) @done(25-03-27 16:24) @lasted(1d15h18m36s)
+
 Statistics:
   ☐ Add Filter Option
     ☐ Include Discount XY From Statistics
@@ -26,6 +27,8 @@ Cash balance:
 Checkout:
   ☐ Add Ingredients to Ingridient Button
   ☐ Add option to reduce the amount of returned cup
+  ☐ On cash payment: option to enter given cash and calculate the change @Optional
+  ☐ Add connection to weather Status @Optional
 Manage Cocktails:
   ☐ Refine Screen Layoutng
 Import/Export:

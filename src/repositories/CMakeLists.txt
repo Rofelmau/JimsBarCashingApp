@@ -4,6 +4,7 @@ add_library(repositories
     DiscountsRepository.cpp
     SalesRepository.cpp
     SettingsRepository.cpp
+    WeatherRepository.cpp
 )
 
 # Include directories

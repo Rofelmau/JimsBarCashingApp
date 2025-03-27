@@ -6,6 +6,7 @@
         <file>components/ChangeSettingsDialog.qml</file>
         <file>components/DatePickerPopup.qml</file>
         <file>components/SelectCocktailDialog.qml</file>
+        <file>components/SetWeatherComponent.qml</file>
         <file>components/TileButton.qml</file>
 
         <file>screens/CheckoutScreen.qml</file>
@@ -15,5 +16,6 @@
         <file>screens/HomeScreen.qml</file>
         <file>screens/SettingsScreen.qml</file>
         <file>screens/StatisticsScreen.qml</file>
+        <file>screens/WeatherSettingsScreen.qml</file>
     </qresource>
 </RCC>

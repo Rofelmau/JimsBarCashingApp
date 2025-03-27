@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+
 import "qrc:/components"
 
 Page {
@@ -10,7 +11,7 @@ Page {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 20
+        spacing: 5
 
         RowLayout {
             Layout.alignment: Qt.AlignLeft
@@ -69,6 +70,20 @@ Page {
                 gradientEnd: "#689f38"
                 onClickedAction: function() {
                     stackView.push("DiscountsConfigurationScreen.qml")
+                }
+            }
+
+            TileButton {
+                Layout.preferredWidth: 200
+                Layout.preferredHeight: 200
+                Layout.alignment: Qt.AlignCenter
+
+                buttonText: "Wetter"
+                borderColor: "darkred"
+                gradientStart: "#e57373"
+                gradientEnd: "#d32f2f"
+                onClickedAction: function() {
+                    stackView.push("WeatherSettingsScreen.qml")
                 }
             }
         }
