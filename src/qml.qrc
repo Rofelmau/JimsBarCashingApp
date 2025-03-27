@@ -9,6 +9,7 @@
         <file>components/SetWeatherComponent.qml</file>
         <file>components/TileButton.qml</file>
 
+        <file>screens/CashBalanceScreen.qml</file>
         <file>screens/CheckoutScreen.qml</file>
         <file>screens/CocktailsConfigurationScreen.qml</file>
         <file>screens/DiscountsConfigurationScreen.qml</file>

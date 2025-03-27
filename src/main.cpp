@@ -2,12 +2,14 @@
 
 #include "DatabaseManager.h"
 
+#include "CashBalanceRepository.h"
 #include "CocktailRepository.h"
 #include "DiscountsRepository.h"
 #include "SalesRepository.h"
 #include "SettingsRepository.h"
 #include "WeatherRepository.h"
 
+#include "CashBalanceScreenController.h"
 #include "CheckoutScreenController.h"
 #include "CocktailsConfigurationScreenController.h"
 #include "DiscountsConfigurationScreenController.h"
@@ -69,6 +71,7 @@ int main(int argc, char *argv[])
     QSharedPointer<DatabaseManager> dbManager{new DatabaseManager};
 
     Logger::LogInfo("Setting up repositories...");
+    QSharedPointer<CashBalanceRepository> cashBalanceRepository{new CashBalanceRepository{dbManager}};
     QSharedPointer<CocktailRepository> cocktailRepository{new CocktailRepository{dbManager}};
     QSharedPointer<DiscountsRepository> discountsRepository{new DiscountsRepository{dbManager}};
     QSharedPointer<SalesRepository> salesRepository{new SalesRepository{dbManager}};
@@ -76,7 +79,10 @@ int main(int argc, char *argv[])
     QSharedPointer<WeatherRepository> weatherRepository{new WeatherRepository{dbManager}};
 
     Logger::LogInfo("Setting up controllers...");
-    CocktailsConfigurationScreenController cocktailsConfigurationScreenController(cocktailRepository);
+    CashBalanceScreenController cashBalanceScreenController{cashBalanceRepository};
+    engine.rootContext()->setContextProperty("CashBalanceScreenController", &cashBalanceScreenController);
+
+    CocktailsConfigurationScreenController cocktailsConfigurationScreenController{cocktailRepository};
     engine.rootContext()->setContextProperty("CocktailsConfigurationScreenController", &cocktailsConfigurationScreenController);
 
     GeneralSettingsScreenController generalSettingsScreenController{settingsRepository, cocktailRepository};
@@ -85,7 +91,7 @@ int main(int argc, char *argv[])
     WeatherSettingsScreenController weatherSettingsScreenController{weatherRepository};
     engine.rootContext()->setContextProperty("WeatherSettingsScreenController", &weatherSettingsScreenController);
 
-    CheckoutScreenController checkoutScreenController{settingsRepository, cocktailRepository, salesRepository, discountsRepository};
+    CheckoutScreenController checkoutScreenController{settingsRepository, cocktailRepository, salesRepository, discountsRepository, cashBalanceRepository};
     engine.rootContext()->setContextProperty("CheckoutScreenController", &checkoutScreenController);
 
     StatisticsScreenController statisticsScreenController{salesRepository, weatherRepository};

@@ -2,6 +2,7 @@
 
 #include "../entities/Sale.h"
 
+#include "../repositories/CashBalanceRepository.h"
 #include "../repositories/CocktailRepository.h"
 #include "../repositories/SalesRepository.h"
 #include "../repositories/SettingsRepository.h"
@@ -28,11 +29,12 @@ class CheckoutScreenController : public QObject
     Q_PROPERTY(QVariantList appliedDiscounts READ appliedDiscounts NOTIFY currentSaleUpdated)
 
 public:
-    explicit CheckoutScreenController(QSharedPointer<SettingsRepository> settingsRepo
-                                        , QSharedPointer<CocktailRepository> cocktailRepo
-                                        , QSharedPointer<SalesRepository> salesRepo
-                                        , QSharedPointer<DiscountsRepository> discountsRepo
-                                        , QObject *parent = nullptr);
+    explicit CheckoutScreenController(QSharedPointer<SettingsRepository> settingsRepo,
+                                       QSharedPointer<CocktailRepository> cocktailRepo,
+                                       QSharedPointer<SalesRepository> salesRepo,
+                                       QSharedPointer<DiscountsRepository> discountsRepo,
+                                       QSharedPointer<CashBalanceRepository> cashBalanceRepo,
+                                       QObject *parent = nullptr);
 
     double pricePerCocktail() const;
     double cupPawn() const;
@@ -62,6 +64,7 @@ private:
     QSharedPointer<CocktailRepository> m_cocktailRepository;
     QSharedPointer<SalesRepository> m_salesRepository;
     QSharedPointer<DiscountsRepository> m_discountsRepository;
+    QSharedPointer<CashBalanceRepository> m_cashBalanceRepository;
 
     Sale m_currentSale;
 };

@@ -1,5 +1,6 @@
 # Add the repository sources
 add_library(repositories
+    CashBalanceRepository.cpp
     CocktailRepository.cpp
     DiscountsRepository.cpp
     SalesRepository.cpp

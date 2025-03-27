@@ -86,6 +86,20 @@ Page {
                     stackView.push("WeatherSettingsScreen.qml")
                 }
             }
+
+            TileButton {
+                Layout.preferredWidth: 200
+                Layout.preferredHeight: 200
+                Layout.alignment: Qt.AlignCenter
+
+                buttonText: "Kassenstand"
+                borderColor: "darkblue"
+                gradientStart: "#5e81f4"
+                gradientEnd: "#4c66d4"
+                onClickedAction: function() {
+                    stackView.push("CashBalanceScreen.qml")
+                }
+            }
         }
     }
 }

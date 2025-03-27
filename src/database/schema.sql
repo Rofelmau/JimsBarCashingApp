@@ -69,3 +69,19 @@ CREATE TABLE IF NOT EXISTS Weather (
     temperature INTEGER,
     timestamp TEXT DEFAULT (datetime('now', 'utc')) -- ISO 8601 format in UTC
 );
+
+-- CashRegister table
+CREATE TABLE IF NOT EXISTS CashRegister (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    balance REAL NOT NULL DEFAULT 0.0,
+    last_updated TEXT DEFAULT (datetime('now', 'utc'))
+);
+
+-- CashRegisterLog table
+CREATE TABLE IF NOT EXISTS CashRegisterLog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    change_amount REAL NOT NULL,
+    new_balance REAL NOT NULL,
+    reason TEXT,
+    timestamp TEXT DEFAULT (datetime('now', 'utc'))
+);
