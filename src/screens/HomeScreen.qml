@@ -51,7 +51,7 @@ Page {
             Layout.preferredHeight: 200
             Layout.alignment: Qt.AlignCenter
 
-            buttonText: "Statistics"
+            buttonText: "Statistiken"
             borderColor: "darkred"
             gradientStart: "#e57373"
             gradientEnd: "#d32f2f"

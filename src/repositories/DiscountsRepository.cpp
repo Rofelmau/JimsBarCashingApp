@@ -34,16 +34,16 @@ QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts() const
 {
     QList<QSharedPointer<Discount>> discounts;
     QSqlQuery query(m_dbManager->database());
-    query.prepare("SELECT id, name, type, value, cocktail_limit, active FROM Discounts");
+    query.prepare("SELECT uuid, name, type, value, cocktail_limit, active FROM Discounts");
     if (query.exec()) {
         while (query.next()) {
             discounts.append(QSharedPointer<Discount>::create(
-                query.value(0).toInt(),
-                query.value(1).toString(),
-                intToDiscountType(query.value(2).toInt()),
-                query.value(3).toDouble(),
-                query.value(4).toInt(),
-                query.value(5).toBool()
+                query.value("uuid").toString(),
+                query.value("name").toString(),
+                intToDiscountType(query.value("type").toInt()),
+                query.value("value").toDouble(),
+                query.value("cocktail_limit").toInt(),
+                query.value("active").toBool()
             ));
         }
     } else {
@@ -55,11 +55,13 @@ QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts() const
 bool DiscountsRepository::addDiscount(const Discount &discount)
 {
     QSqlQuery query(m_dbManager->database());
-    query.prepare("INSERT INTO Discounts (name, type, value, cocktail_limit) VALUES (?, ?, ?, ?)");
+    query.prepare("INSERT INTO Discounts (uuid, name, type, value, cocktail_limit, active) VALUES (?, ?, ?, ?, ?, ?)"); // UUID und Active hinzugefügt
+    query.addBindValue(discount.getUuid());
     query.addBindValue(discount.getName());
     query.addBindValue(discountTypeToInt(discount.getType()));
     query.addBindValue(discount.getValue());
     query.addBindValue(discount.getCocktailLimit());
+    query.addBindValue(discount.isActive());
     if (!query.exec()) {
         Logger::LogError("Failed to execute addDiscount query. Error:" + query.lastError().text().toStdString());
         return false;
@@ -70,12 +72,12 @@ bool DiscountsRepository::addDiscount(const Discount &discount)
 bool DiscountsRepository::updateDiscount(const Discount &discount)
 {
     QSqlQuery query(m_dbManager->database());
-    query.prepare("UPDATE Discounts SET name = ?, type = ?, value = ?, cocktail_limit = ? WHERE id = ?");
-    query.addBindValue(discount.getName());
-    query.addBindValue(discountTypeToInt(discount.getType()));
-    query.addBindValue(discount.getValue());
-    query.addBindValue(discount.getCocktailLimit());
-    query.addBindValue(discount.getId());
+    query.prepare("UPDATE Discounts SET name = :name, type = :type, value = :value, cocktail_limit = :cocktail_limit WHERE uuid = :uuid");
+    query.bindValue(":name", discount.getName());
+    query.bindValue(":type", discountTypeToInt(discount.getType()));
+    query.bindValue(":value", discount.getValue());
+    query.bindValue(":cocktail_limit", discount.getCocktailLimit());
+    query.bindValue(":uuid", discount.getUuid());
     if (!query.exec()) {
         Logger::LogError("Failed to execute updateDiscount query. Error:" + query.lastError().text().toStdString());
         return false;
@@ -83,11 +85,11 @@ bool DiscountsRepository::updateDiscount(const Discount &discount)
     return true;
 }
 
-bool DiscountsRepository::deleteDiscount(int discountId)
+bool DiscountsRepository::deleteDiscount(const QString &uuid)
 {
     QSqlQuery query(m_dbManager->database());
-    query.prepare("DELETE FROM Discounts WHERE id = ?");
-    query.addBindValue(discountId);
+    query.prepare("DELETE FROM Discounts WHERE uuid = :uuid");
+    query.bindValue(":uuid", uuid);
     if (!query.exec()) {
         Logger::LogError("Failed to execute deleteDiscount query. Error:" + query.lastError().text().toStdString());
         return false;
@@ -95,38 +97,15 @@ bool DiscountsRepository::deleteDiscount(int discountId)
     return true;
 }
 
-QSharedPointer<Discount> DiscountsRepository::getDiscountById(int discountId)
+bool DiscountsRepository::updateDiscountActiveStatus(const QString &uuid, bool active)
 {
     QSqlQuery query(m_dbManager->database());
-    query.prepare("SELECT name, type, value, cocktail_limit FROM Discounts WHERE id = ?");
-    query.addBindValue(discountId);
-    if (query.exec()) {
-        if (query.next()) {
-            return QSharedPointer<Discount>::create(
-                discountId,
-                query.value(0).toString(),
-                intToDiscountType(query.value(1).toInt()),
-                query.value(2).toDouble(),
-                query.value(3).toInt()
-            );
-        } else {
-            Logger::LogWarn("No discount found with ID:" + discountId);
-        }
-    } else {
-        Logger::LogError("Failed to execute getDiscountById query. Error:" + query.lastError().text().toStdString());
-    }
-    return nullptr;
-}
-
-bool DiscountsRepository::updateDiscountActiveStatus(int discountId, bool active)
-{
-    QSqlQuery query(m_dbManager->database());
-    query.prepare("UPDATE Discounts SET active = ? WHERE id = ?");
+    query.prepare("UPDATE Discounts SET active = ? WHERE uuid = ?");
     query.addBindValue(active);
-    query.addBindValue(discountId);
+    query.addBindValue(uuid);
 
-    if (!query.exec())
-    {
+    if (!query.exec()) {
+        Logger::LogError("Failed to execute updateDiscountActiveStatus query. Error:" + query.lastError().text().toStdString());
         return false;
     }
 
@@ -139,7 +118,7 @@ QJsonArray DiscountsRepository::exportAsJson() const
 
     for (const QSharedPointer<Discount> &discount : getAllDiscounts()) {
         QJsonObject discountObject;
-        discountObject["id"] = discount->getId();
+        discountObject["uuid"] = discount->getUuid();
         discountObject["name"] = discount->getName();
         discountObject["type"] = static_cast<int>(discount->getType());
         discountObject["value"] = discount->getValue();
@@ -154,21 +133,46 @@ QJsonArray DiscountsRepository::exportAsJson() const
 
 void DiscountsRepository::import(const QJsonArray &jsonArray)
 {
-    for (const QJsonValue &value : jsonArray) {
-        if (!value.isObject()) {
+    for (const QJsonValue &jsonValue : jsonArray) {
+        if (!jsonValue.isObject()) {
             continue;
         }
 
-        QJsonObject discountObject = value.toObject();
-        Discount discount(
-            discountObject["id"].toInt(),
-            discountObject["name"].toString(),
-            intToDiscountType(discountObject["type"].toInt()),
-            discountObject["value"].toDouble(),
-            discountObject["cocktail_limit"].toInt(),
-            discountObject["active"].toBool()
-        );
+        QJsonObject discountObject = jsonValue.toObject();
+        QString uuid = discountObject["uuid"].toString();
+        QString name = discountObject["name"].toString();
+        DiscountType type = intToDiscountType(discountObject["type"].toInt());
+        double discountValue = discountObject["value"].toDouble();
+        int cocktailLimit = discountObject["cocktail_limit"].toInt();
+        bool active = discountObject["active"].toBool();
 
-        addDiscount(discount);
+        QSharedPointer<Discount> existingDiscount = getDiscountByUuid(uuid);
+        if (existingDiscount) {
+            Discount updatedDiscount(uuid, name, type, discountValue, cocktailLimit, active);
+            updateDiscount(updatedDiscount);
+        } else {
+            Discount newDiscount(uuid, name, type, discountValue, cocktailLimit, active);
+            addDiscount(newDiscount);
+        }
     }
+}
+
+QSharedPointer<Discount> DiscountsRepository::getDiscountByUuid(const QString &uuid) const
+{
+    QSqlQuery query(m_dbManager->database());
+    query.prepare("SELECT uuid, name, type, value, cocktail_limit, active FROM Discounts WHERE uuid = ?");
+    query.addBindValue(uuid);
+
+    if (query.exec() && query.next()) {
+        return QSharedPointer<Discount>::create(
+            query.value("uuid").toString(),
+            query.value("name").toString(),
+            intToDiscountType(query.value("type").toInt()),
+            query.value("value").toDouble(),
+            query.value("cocktail_limit").toInt(),
+            query.value("active").toBool()
+        );
+    }
+
+    return nullptr;
 }

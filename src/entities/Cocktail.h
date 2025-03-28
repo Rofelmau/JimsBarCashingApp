@@ -6,19 +6,20 @@
 class Cocktail
 {
 public:
-    Cocktail(int id = -1, const QString &name = "");
+    explicit Cocktail(const QString &uuid = "", const QString &name = "");
 
     Cocktail(const Cocktail &other);
     Cocktail &operator=(const Cocktail &other);
     bool operator==(const Cocktail &other) const;
 
-    int getId() const;
     QString getName() const;
     QStringList getIngredients() const;
     void setIngredients(const QStringList &ingredients);
 
+    QString getUuid() const;
+
 private:
-    int id;
+    QString uuid;
     QString name;
     QStringList ingredients;
 };

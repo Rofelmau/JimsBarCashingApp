@@ -1,40 +1,74 @@
--- Insert initial settings
-INSERT INTO Settings (key, value) VALUES ('price_per_cocktail', '5.00');
-INSERT INTO Settings (key, value) VALUES ('cup_pawn', '0.50');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_1', '1');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_2', '2');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_3', '3');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_4', '4');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_5', '5');
-INSERT INTO Settings (key, value) VALUES ('selected_cocktail_6', '6');
+INSERT INTO Cocktails VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}','Blue Lagoon');
+INSERT INTO Cocktails VALUES('{f647acd6-e0fc-43d5-8a92-76faedc78d1f}','Erdbeer Mosquito');
+INSERT INTO Cocktails VALUES('{334ec07e-7540-488a-82dd-78ba995d7e56}','Ev. Jugend Spezial');
+INSERT INTO Cocktails VALUES('{c45b7f16-4498-4a52-a1c7-d8f1c5064d6b}','Ipanema');
+INSERT INTO Cocktails VALUES('{a157b1db-2695-452b-b9f0-db63069f882f}','Strawberry Virgin');
+INSERT INTO Cocktails VALUES('{5da9c7ed-2876-47b7-94b9-4942d17269ce}','Virgin Colada');
+INSERT INTO Cocktails VALUES('{6841f48c-92d9-4cf6-8eb0-560ca8c9b5d0}','Viva');
 
--- Insert initial cocktails
-INSERT INTO Cocktails (name) VALUES ('Strawberry Virgin');
-INSERT INTO Cocktails (name) VALUES ('Erdbeer Mosquito');
-INSERT INTO Cocktails (name) VALUES ('Viva');
-INSERT INTO Cocktails (name) VALUES ('Ipanema');
-INSERT INTO Cocktails (name) VALUES ('Virgin Colada');
-INSERT INTO Cocktails (name) VALUES ('Blue Lagoon');
+INSERT INTO Ingredients VALUES(1,'Mangosirup');
+INSERT INTO Ingredients VALUES(2,'Blue Curacao');
+INSERT INTO Ingredients VALUES(3,'Lime Juice');
+INSERT INTO Ingredients VALUES(4,'Orangensaft');
+INSERT INTO Ingredients VALUES(5,'Maracujasaft');
+INSERT INTO Ingredients VALUES(6,'Limette');
+INSERT INTO Ingredients VALUES(7,'Holunderblütensirup');
+INSERT INTO Ingredients VALUES(8,'Erdbeersaft');
+INSERT INTO Ingredients VALUES(9,'Mineralwasser');
+INSERT INTO Ingredients VALUES(10,'Orangen');
+INSERT INTO Ingredients VALUES(11,'Cranberrysaft');
+INSERT INTO Ingredients VALUES(12,'Rohrzucker');
+INSERT INTO Ingredients VALUES(13,'Gingerale');
+INSERT INTO Ingredients VALUES(14,'Kokossirup');
+INSERT INTO Ingredients VALUES(15,'Sahne');
+INSERT INTO Ingredients VALUES(16,'Ananassaft');
+INSERT INTO Ingredients VALUES(17,'Pfirsichsirup');
+INSERT INTO Ingredients VALUES(18,'Grenadinesirup');
+INSERT INTO Ingredients VALUES(19,'Zitronensaft');
 
--- Insert initial ingredients
-INSERT INTO Ingredients (name) VALUES ('Mangosirup');
-INSERT INTO Ingredients (name) VALUES ('Limette');
-INSERT INTO Ingredients (name) VALUES ('Orangen');
-INSERT INTO Ingredients (name) VALUES ('Gingerale');
-INSERT INTO Ingredients (name) VALUES ('Kokossirup');
-INSERT INTO Ingredients (name) VALUES ('Ananassaft');
-INSERT INTO Ingredients (name) VALUES ('Pfirsichsirup');
+INSERT INTO CocktailIngredients VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}',1);
+INSERT INTO CocktailIngredients VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}',2);
+INSERT INTO CocktailIngredients VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}',3);
+INSERT INTO CocktailIngredients VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}',4);
+INSERT INTO CocktailIngredients VALUES('{197627e7-4ab8-4bb7-b6c6-b5bc98d23ce6}',5);
+INSERT INTO CocktailIngredients VALUES('{f647acd6-e0fc-43d5-8a92-76faedc78d1f}',6);
+INSERT INTO CocktailIngredients VALUES('{f647acd6-e0fc-43d5-8a92-76faedc78d1f}',7);
+INSERT INTO CocktailIngredients VALUES('{f647acd6-e0fc-43d5-8a92-76faedc78d1f}',8);
+INSERT INTO CocktailIngredients VALUES('{f647acd6-e0fc-43d5-8a92-76faedc78d1f}',9);
+INSERT INTO CocktailIngredients VALUES('{334ec07e-7540-488a-82dd-78ba995d7e56}',10);
+INSERT INTO CocktailIngredients VALUES('{334ec07e-7540-488a-82dd-78ba995d7e56}',3);
+INSERT INTO CocktailIngredients VALUES('{334ec07e-7540-488a-82dd-78ba995d7e56}',11);
+INSERT INTO CocktailIngredients VALUES('{334ec07e-7540-488a-82dd-78ba995d7e56}',12);
+INSERT INTO CocktailIngredients VALUES('{c45b7f16-4498-4a52-a1c7-d8f1c5064d6b}',6);
+INSERT INTO CocktailIngredients VALUES('{c45b7f16-4498-4a52-a1c7-d8f1c5064d6b}',13);
+INSERT INTO CocktailIngredients VALUES('{c45b7f16-4498-4a52-a1c7-d8f1c5064d6b}',3);
+INSERT INTO CocktailIngredients VALUES('{c45b7f16-4498-4a52-a1c7-d8f1c5064d6b}',12);
+INSERT INTO CocktailIngredients VALUES('{a157b1db-2695-452b-b9f0-db63069f882f}',14);
+INSERT INTO CocktailIngredients VALUES('{a157b1db-2695-452b-b9f0-db63069f882f}',15);
+INSERT INTO CocktailIngredients VALUES('{a157b1db-2695-452b-b9f0-db63069f882f}',8);
+INSERT INTO CocktailIngredients VALUES('{5da9c7ed-2876-47b7-94b9-4942d17269ce}',16);
+INSERT INTO CocktailIngredients VALUES('{5da9c7ed-2876-47b7-94b9-4942d17269ce}',14);
+INSERT INTO CocktailIngredients VALUES('{5da9c7ed-2876-47b7-94b9-4942d17269ce}',15);
+INSERT INTO CocktailIngredients VALUES('{6841f48c-92d9-4cf6-8eb0-560ca8c9b5d0}',17);
+INSERT INTO CocktailIngredients VALUES('{6841f48c-92d9-4cf6-8eb0-560ca8c9b5d0}',18);
+INSERT INTO CocktailIngredients VALUES('{6841f48c-92d9-4cf6-8eb0-560ca8c9b5d0}',5);
+INSERT INTO CocktailIngredients VALUES('{6841f48c-92d9-4cf6-8eb0-560ca8c9b5d0}',19);
 
--- Insert initial cocktail ingredients
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (1, 5);
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (2, 2);
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (3, 7);
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (4, 4);
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (5, 6);
-INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) VALUES (6, 1);
+INSERT INTO Discounts VALUES('{b6d3c6e2-d84f-4e23-9e66-04ef04c13fd0}','JULEICA',0,1.0,-1,1);
+INSERT INTO Discounts VALUES('{2d90c57d-911c-4968-9a76-34f4712dd089}','Gruppenrabatt',1,20.0,4,1);
+INSERT INTO Discounts VALUES('{c91012bc-bd3e-4bd5-b1dd-a2646f8e4751}','Mitarbeiter',2,-1.0,-1,1);
+INSERT INTO Discounts VALUES('{4471da6b-c2a1-439b-a27c-72e72020320b}','5%',3,5.0,-1,1);
 
--- Insert initial discounts
-INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('JULEICA', 0, 1.0, -1, 1);
-INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('Gruppenrabatt', 1, 20.0, 4, 1);
-INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('Mitarbeiter', 2, -1.0, -1, 1);
-INSERT INTO Discounts (name, type, value, cocktail_limit, active) VALUES ('5%', 3, 5.0, -1, 1);
+INSERT INTO Settings VALUES(1, 'price_per_cocktail', 6.0);
+INSERT INTO Settings VALUES(2, 'cup_pawn', 1.0);
+INSERT INTO Settings VALUES(3, 'selected_cocktail_1', '');
+INSERT INTO Settings VALUES(4, 'selected_cocktail_2', '');
+INSERT INTO Settings VALUES(5, 'selected_cocktail_3', '');
+INSERT INTO Settings VALUES(6, 'selected_cocktail_4', '');
+INSERT INTO Settings VALUES(7, 'selected_cocktail_5', '');
+INSERT INTO Settings VALUES(8, 'selected_cocktail_6', '');
+
+INSERT INTO DatabaseVersion VALUES(1,1);
+
+INSERT INTO sqlite_sequence VALUES('DatabaseVersion',1);
+INSERT INTO sqlite_sequence VALUES('Ingredients',19);

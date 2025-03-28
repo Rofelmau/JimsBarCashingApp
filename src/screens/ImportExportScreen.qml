@@ -5,13 +5,20 @@ import QtQuick.Dialogs 1.3
 Page {
     title: "Import/Export"
 
+    Button {
+        text: "Zurück"
+        // TODO ICON hinterlegen icon.source: "qrc:/icons/left-arrow.png" // Pfad zu Ihrem Pfeil-Icon
+        onClicked: {
+            stackView.pop()
+        }
+    }
+
     FileDialog {
         id: exportFileDialog
         title: "Save Exported Data"
         selectExisting: false
         nameFilters: ["JSON Files (*.json)", "All Files (*)"]
         onAccepted: ImportExportScreenController.exportData(fileUrl.toString())
-        onRejected: console.log("Export canceled by user.")
     }
 
     FileDialog {
@@ -20,7 +27,6 @@ Page {
         selectExisting: true
         nameFilters: ["Bundle Files (*.bundle)", "All Files (*)"] // Unterstützt jetzt .bundle-Dateien
         onAccepted: ImportExportScreenController.importData(fileUrl.toString())
-        onRejected: console.log("Import canceled by user.")
     }
 
     MessageDialog {
@@ -44,11 +50,13 @@ Page {
 
         Button {
             text: "Export Data"
+            width: 200
             onClicked: exportFileDialog.open()
         }
 
         Button {
             text: "Import Data"
+            width: 200
             onClicked: importFileDialog.open()
         }
     }

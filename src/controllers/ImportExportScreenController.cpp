@@ -49,7 +49,7 @@ void ImportExportScreenController::bundleData(const QString &exportFilePath, con
 {
     QFile exportFile(exportFilePath);
     if (!exportFile.open(QIODevice::ReadOnly)) {
-        Logger::LogError("Failed to open export file for bundling: " + exportFilePath.toStdString());
+        Logger::LogError(QString("Failed to open export file for bundling: %1").arg(exportFilePath).toStdString());
         throw std::runtime_error("Failed to open export file for bundling.");
     }
 
@@ -64,7 +64,7 @@ void ImportExportScreenController::bundleData(const QString &exportFilePath, con
 
     QFile bundleFile(bundleFilePath);
     if (!bundleFile.open(QIODevice::WriteOnly)) {
-        Logger::LogError("Failed to create bundle file: " + bundleFilePath.toStdString());
+        Logger::LogError(QString("Failed to create bundle file: %1").arg(bundleFilePath).toStdString());
         throw std::runtime_error("Failed to create bundle file.");
     }
 
@@ -77,7 +77,7 @@ bool ImportExportScreenController::unbundleData(const QString &bundleFilePath, Q
 {
     QFile bundleFile(bundleFilePath);
     if (!bundleFile.open(QIODevice::ReadOnly)) {
-        Logger::LogError("Failed to open bundle file: " + bundleFilePath.toStdString());
+        Logger::LogError(QString("Failed to open bundle file: %1").arg(bundleFilePath).toStdString());
         return false;
     }
 
@@ -117,7 +117,7 @@ void ImportExportScreenController::exportData(const QString &filePath)
 
     QFile file(adjustedFilePath);
     if (!file.open(QIODevice::WriteOnly)) {
-        Logger::LogError("Failed to export data to " + adjustedFilePath.toStdString());
+        Logger::LogError(QString("Failed to export data to %1").arg(adjustedFilePath).toStdString());
         emit operationStatus("Failed to export data.");
         return;
     }
@@ -139,12 +139,12 @@ void ImportExportScreenController::exportData(const QString &filePath)
         bundleData(adjustedFilePath, bundleFilePath);
 
         if (QFile::remove(adjustedFilePath)) {
-            Logger::LogInfo("Temporary export file deleted: " + adjustedFilePath.toStdString());
+            Logger::LogInfo(QString("Temporary export file deleted: %1").arg(adjustedFilePath).toStdString());
         } else {
-            Logger::LogWarn("Failed to delete temporary export file: " + adjustedFilePath.toStdString());
+            Logger::LogWarn(QString("Failed to delete temporary export file: %1").arg(adjustedFilePath).toStdString());
         }
 
-        Logger::LogInfo("Data exported successfully to " + bundleFilePath.toStdString());
+        Logger::LogInfo(QString("Data exported successfully to %1").arg(bundleFilePath).toStdString());
         emit operationStatus("Export successful!");
     } catch (const std::runtime_error &e) {
         Logger::LogError(e.what());
@@ -210,6 +210,6 @@ void ImportExportScreenController::importData(const QString &filePath)
         m_settingsRepository->import(root[GENERAL_SETTINGS_KEY].toObject());
     }
 
-    Logger::LogInfo("Data imported successfully from " + adjustedFilePath.toStdString());
+    Logger::LogInfo(QString("Data imported successfully from %1").arg(adjustedFilePath).toStdString());
     emit operationStatus("Import successful!");
 }

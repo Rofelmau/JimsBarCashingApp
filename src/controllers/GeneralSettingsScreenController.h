@@ -18,12 +18,12 @@ class GeneralSettingsScreenController : public QObject
     Q_PROPERTY(QString selectedCocktail5 READ getSelectedCocktail5 NOTIFY settingsChanged)
     Q_PROPERTY(QString selectedCocktail6 READ getSelectedCocktail6 NOTIFY settingsChanged)
     Q_PROPERTY(QVariantList availableCocktails READ getAvailableCocktails NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail1Id READ getSelectedCocktail1Id NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail2Id READ getSelectedCocktail2Id NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail3Id READ getSelectedCocktail3Id NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail4Id READ getSelectedCocktail4Id NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail5Id READ getSelectedCocktail5Id NOTIFY settingsChanged)
-    Q_PROPERTY(int selectedCocktail6Id READ getSelectedCocktail6Id NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail1Uuid READ getSelectedCocktail1Uuid NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail2Uuid READ getSelectedCocktail2Uuid NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail3Uuid READ getSelectedCocktail3Uuid NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail4Uuid READ getSelectedCocktail4Uuid NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail5Uuid READ getSelectedCocktail5Uuid NOTIFY settingsChanged)
+    Q_PROPERTY(QString selectedCocktail6Uuid READ getSelectedCocktail6Uuid NOTIFY settingsChanged)
 
 public:
     explicit GeneralSettingsScreenController(QSharedPointer<SettingsRepository> settingsRepo
@@ -40,16 +40,16 @@ public:
     QString getSelectedCocktail6() const;
     QVariantList getAvailableCocktails() const;
 
-    int getSelectedCocktail1Id() const;
-    int getSelectedCocktail2Id() const;
-    int getSelectedCocktail3Id() const;
-    int getSelectedCocktail4Id() const;
-    int getSelectedCocktail5Id() const;
-    int getSelectedCocktail6Id() const;
+    QString getSelectedCocktail1Uuid() const;
+    QString getSelectedCocktail2Uuid() const;
+    QString getSelectedCocktail3Uuid() const;
+    QString getSelectedCocktail4Uuid() const;
+    QString getSelectedCocktail5Uuid() const;
+    QString getSelectedCocktail6Uuid() const;
 
     Q_INVOKABLE void savePricePerCocktail(double price);
     Q_INVOKABLE void saveCupPawn(double pawn);
-    Q_INVOKABLE void setSelectedCocktail(int index, int cocktailId);
+    Q_INVOKABLE void setSelectedCocktail(int index, const QString &cocktailUuid);
 
 signals:
     void settingsChanged();

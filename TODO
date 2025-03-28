@@ -31,6 +31,6 @@ Checkout:
   ☐ Add connection to weather Status @Optional
 Manage Cocktails:
   ☐ Refine Screen Layoutng
-Import/Export:
-  ☐ Add Import/Export Functionality
+✔ Import/Export: @done(25-03-28 19:46)
+  ✔ Add Import/Export Functionality @started(25-03-28 14:00) @done(25-03-28 19:46) @lasted(5h46m27s)
 

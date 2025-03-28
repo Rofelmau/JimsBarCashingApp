@@ -1,4 +1,5 @@
 #include "DiscountsConfigurationScreenController.h"
+
 #include "DiscountType.h"
 
 DiscountsConfigurationScreenController::DiscountsConfigurationScreenController(QSharedPointer<DiscountsRepository> discountsRepository, QObject *parent)
@@ -17,34 +18,33 @@ DiscountModel *DiscountsConfigurationScreenController::discountModel() const
 void DiscountsConfigurationScreenController::addDiscount(const QString &name, const int type, double value, int cocktailLimit)
 {
     DiscountType discountType = static_cast<DiscountType>(type);
-    auto discount = QSharedPointer<Discount>::create(-1, name, discountType, value, cocktailLimit);
+    const QString& uuid = QUuid::createUuid().toString();
+    auto discount = QSharedPointer<Discount>::create(uuid, name, discountType, value, cocktailLimit, true);
     if (m_discountsRepository->addDiscount(*discount))
     {
         loadDiscounts();
     }
 }
 
-void DiscountsConfigurationScreenController::updateDiscount(int id, const QString &name, const int type, double value, int cocktailLimit)
+void DiscountsConfigurationScreenController::updateDiscount(const QString &uuid, const QString &name, const int type, double value, int cocktailLimit)
 {
     DiscountType discountType = static_cast<DiscountType>(type);
-    auto discount = QSharedPointer<Discount>::create(id, name, discountType, value, cocktailLimit);
-    if (m_discountsRepository->updateDiscount(*discount))
-    {
+    auto discount = QSharedPointer<Discount>::create(uuid, name, discountType, value, cocktailLimit, true);
+    if (m_discountsRepository->updateDiscount(*discount)) {
         loadDiscounts();
     }
 }
 
-void DiscountsConfigurationScreenController::deleteDiscount(int id)
+void DiscountsConfigurationScreenController::deleteDiscount(const QString &uuid)
 {
-    if (m_discountsRepository->deleteDiscount(id))
-    {
+    if (m_discountsRepository->deleteDiscount(uuid)) {
         loadDiscounts();
     }
 }
 
-void DiscountsConfigurationScreenController::toggleDiscountActiveStatus(int id, bool active)
+void DiscountsConfigurationScreenController::toggleDiscountActiveStatus(const QString &uuid, bool active)
 {
-    if (m_discountsRepository->updateDiscountActiveStatus(id, active))
+    if (m_discountsRepository->updateDiscountActiveStatus(uuid, active))
     {
         loadDiscounts();
     }

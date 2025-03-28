@@ -64,9 +64,9 @@ Item {
                         onClicked: {
                             selectCocktailDialog.dialogTitle = "Select Cocktail " + (index + 1);
                             selectCocktailDialog.availableCocktails = GeneralSettingsScreenController.availableCocktails;
-                            selectCocktailDialog.selectedCocktailId = GeneralSettingsScreenController["selectedCocktail" + (index + 1) + "Id"];
-                            selectCocktailDialog.onSave = function(cocktailId) {
-                                GeneralSettingsScreenController.setSelectedCocktail(index + 1, cocktailId);
+                            selectCocktailDialog.selectedCocktailUuid = GeneralSettingsScreenController["selectedCocktail" + (index + 1) + "Uuid"];
+                            selectCocktailDialog.onSave = function(cocktailUuid) {
+                                GeneralSettingsScreenController.setSelectedCocktail(index + 1, cocktailUuid);
                             };
                             selectCocktailDialog.open();
                         }

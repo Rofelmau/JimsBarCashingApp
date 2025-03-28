@@ -80,40 +80,40 @@ QString GeneralSettingsScreenController::getSelectedCocktail6() const
     return cocktail ? cocktail->getName() : "None";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail1Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail1Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(1) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail2Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail2Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(2) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail3Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail3Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(3) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail4Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail4Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(4) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail5Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail5Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(5) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
-int GeneralSettingsScreenController::getSelectedCocktail6Id() const
+QString GeneralSettingsScreenController::getSelectedCocktail6Uuid() const
 {
     auto cocktail = m_generalSettings ? m_generalSettings->getSelectedCocktail(6) : nullptr;
-    return cocktail ? cocktail->getId() : -1;
+    return cocktail ? cocktail->getUuid() : "";
 }
 
 QVariantList GeneralSettingsScreenController::getAvailableCocktails() const
@@ -122,16 +122,16 @@ QVariantList GeneralSettingsScreenController::getAvailableCocktails() const
     for (const QSharedPointer<Cocktail>& cocktail : m_cocktailRepository->getAllCocktails())
     {
         QVariantMap cocktailData;
-        cocktailData["id"] = cocktail->getId();
+        cocktailData["uuid"] = cocktail->getUuid();
         cocktailData["name"] = cocktail->getName();
         cocktails.append(cocktailData);
     }
     return cocktails;
 }
 
-void GeneralSettingsScreenController::setSelectedCocktail(int index, int cocktailId)
+void GeneralSettingsScreenController::setSelectedCocktail(int index, const QString &cocktailUuid)
 {
-    QSharedPointer<Cocktail> cocktail = (cocktailId == -1) ? nullptr : m_cocktailRepository->getCocktailById(cocktailId);
+    QSharedPointer<Cocktail> cocktail = cocktailUuid.isEmpty() ? nullptr : m_cocktailRepository->getCocktailByUuid(cocktailUuid);
     m_settingsRepository->updateSelectedCocktail(index, cocktail);
     loadSettings();
 }

@@ -2,17 +2,17 @@
 
 #include "../Logger.h"
 
-#include <math.h>
+#include <cmath>
 
-SaleDetail::SaleDetail(int cocktailId, int quantity)
-    : cocktailId(cocktailId)
+SaleDetail::SaleDetail(const QString &cocktailUuid, int quantity)
+    : cocktailUuid(cocktailUuid)
     , quantity(quantity)
 {
 }
 
-int SaleDetail::getCocktailId() const
+QString SaleDetail::getCocktailUuid() const
 {
-    return cocktailId;
+    return cocktailUuid;
 }
 
 int SaleDetail::getQuantity() const
@@ -64,16 +64,15 @@ double Sale::calculateDiscount(const double totalCocktailPrice)
     double discountAmount = 0.0;
     const int totalCocktails = getTotalCocktailCount();
 
-    for (auto it = discountQuantities.begin(); it != discountQuantities.end(); ++it)
-    {
-        const int discountId = it.key();
+    for (auto it = discountQuantities.begin(); it != discountQuantities.end(); ++it) {
+        const QString &discountUuid = it.key();
         const int quantity = it.value();
 
-        if (!discountLookup.contains(discountId)) {
+        if (!discountLookup.contains(discountUuid)) {
             continue;
         }
 
-        QSharedPointer<Discount> discount = discountLookup.value(discountId);
+        QSharedPointer<Discount> discount = discountLookup.value(discountUuid);
 
         switch (discount->getType()) {
             case DiscountType::ClassicDiscount: {
@@ -94,7 +93,6 @@ double Sale::calculateDiscount(const double totalCocktailPrice)
                 break;
             }
             case DiscountType::ForFree: {
-                const int groupSize = discount->getCocktailLimit();
                 const int actualQuantity = std::min(totalCocktails, quantity);
                 discountAmount += pricePerCocktail * actualQuantity;
                 break;
@@ -113,8 +111,7 @@ double Sale::calculateDiscount(const double totalCocktailPrice)
 void Sale::updateTotalPrice()
 {
     double totalCocktailPrice = 0.0;
-    for (const auto &detail : details)
-    {
+    for (const auto &detail : details) {
         totalCocktailPrice += detail.getQuantity() * pricePerCocktail;
     }
 
@@ -129,7 +126,6 @@ void Sale::updateTotalPrice()
 void Sale::setPricePerCocktail(double price)
 {
     pricePerCocktail = price;
-
     updateTotalPrice();
 }
 
@@ -141,7 +137,6 @@ void Sale::setTotalPrice(double price)
 void Sale::setCupPawn(double pawn)
 {
     cupPawn = pawn;
-
     updateTotalPrice();
 }
 
@@ -158,42 +153,34 @@ PaymentMethod Sale::getPaymentMethod() const
 void Sale::addDetail(const SaleDetail &detail)
 {
     details.append(detail);
-
     updateTotalPrice();
 }
 
-void Sale::incrementQuantity(int cocktailId)
+void Sale::incrementQuantity(const QString &cocktailUuid)
 {
-    auto it = std::find_if(details.begin(), details.end(), [cocktailId](const SaleDetail &detail) {
-        return detail.getCocktailId() == cocktailId;
+    auto it = std::find_if(details.begin(), details.end(), [cocktailUuid](const SaleDetail &detail) {
+        return detail.getCocktailUuid() == cocktailUuid;
     });
 
-    if (it != details.end())
-    {
+    if (it != details.end()) {
         it->setQuantity(it->getQuantity() + 1);
-    }
-    else
-    {
-        details.append(SaleDetail(cocktailId, 1));
+    } else {
+        details.append(SaleDetail(cocktailUuid, 1));
     }
 
     updateTotalPrice();
 }
 
-void Sale::decrementQuantity(int cocktailId)
+void Sale::decrementQuantity(const QString &cocktailUuid)
 {
-    auto it = std::find_if(details.begin(), details.end(), [cocktailId](const SaleDetail &detail) {
-        return detail.getCocktailId() == cocktailId;
+    auto it = std::find_if(details.begin(), details.end(), [cocktailUuid](const SaleDetail &detail) {
+        return detail.getCocktailUuid() == cocktailUuid;
     });
 
-    if (it != details.end())
-    {
-        if (it->getQuantity() > 1)
-        {
+    if (it != details.end()) {
+        if (it->getQuantity() > 1) {
             it->setQuantity(it->getQuantity() - 1);
-        }
-        else
-        {
+        } else {
             details.erase(it);
         }
     }
@@ -204,8 +191,7 @@ void Sale::decrementQuantity(int cocktailId)
 double Sale::getTotalCupPawn() const
 {
     int cupsRequired = 0;
-    for (const auto &detail : details)
-    {
+    for (const auto &detail : details) {
         cupsRequired += detail.getQuantity();
     }
     return cupsRequired * cupPawn;
@@ -228,12 +214,12 @@ void Sale::incerementDiscountQuantity(QSharedPointer<Discount> discount)
         return;
     }
 
-    int discountId = discount->getId();
-    if (!discountLookup.contains(discountId)) {
-        discountLookup.insert(discountId, discount);
-        discountQuantities.insert(discountId, 1);
+    const QString& discountUuid = discount->getUuid();
+    if (!discountLookup.contains(discountUuid)) {
+        discountLookup.insert(discountUuid, discount);
+        discountQuantities.insert(discountUuid, 1);
     } else {
-        discountQuantities[discountId]++;
+        discountQuantities[discountUuid]++;
     }
 
     updateTotalPrice();
@@ -245,13 +231,13 @@ void Sale::decrementDiscountQuantity(QSharedPointer<Discount> discount)
         return;
     }
 
-    int discountId = discount->getId();
-    if (discountQuantities.contains(discountId)) {
-        if (discountQuantities[discountId] > 1) {
-            discountQuantities[discountId]--;
+    const QString& discountUuid = discount->getUuid();
+    if (discountQuantities.contains(discountUuid)) {
+        if (discountQuantities[discountUuid] > 1) {
+            discountQuantities[discountUuid]--;
         } else {
-            discountQuantities.remove(discountId);
-            discountLookup.remove(discountId);
+            discountQuantities.remove(discountUuid);
+            discountLookup.remove(discountUuid);
         }
     }
 
@@ -267,9 +253,9 @@ QSet<QSharedPointer<Discount>> Sale::getAppliedDiscounts() const
     return appliedDiscounts;
 }
 
-int Sale::getDiscountQuantity(int discountId) const
+int Sale::getDiscountQuantity(const QString &discountUuid) const
 {
-    return discountQuantities.value(discountId, 0);
+    return discountQuantities.value(discountUuid, 0);
 }
 
 int Sale::getTotalCocktailCount() const

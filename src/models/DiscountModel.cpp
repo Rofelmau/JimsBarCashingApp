@@ -45,7 +45,7 @@ QVariant DiscountModel::data(const QModelIndex &index, int role) const
     switch (role)
     {
     case IdRole:
-        return discount->getId();
+        return discount->getUuid();
     case NameRole:
         return discount->getName();
     case TypeRole:

@@ -13,7 +13,7 @@ Dialog {
     property alias dialogTitle: titleText.text
     property var availableCocktails: []
     property var onSave: null
-    property int selectedCocktailId: -1
+    property string selectedCocktailUuid: ""
 
     onOpened: {
         selectCocktailDialog.x = (parent.width - selectCocktailDialog.width) / 2
@@ -21,16 +21,11 @@ Dialog {
 
         // Add "None" option and sort cocktails alphabetically
         let cocktailsWithNone = availableCocktails.slice();
-        cocktailsWithNone.push({ id: -1, name: "None" });
+        cocktailsWithNone.push({ uuid: "", name: "None" });
         availableCocktails = cocktailsWithNone.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Preselect the current cocktail ID if available
-        for (var i = 0; i < availableCocktails.length; i++) {
-            if (availableCocktails[i].id === selectedCocktailId) {
-                cocktailComboBox.currentIndex = i;
-                break;
-            }
-        }
+        let preselectedIndex = cocktailsWithNone.findIndex(cocktail => cocktail.uuid === selectedCocktailUuid);
+        cocktailComboBox.currentIndex = preselectedIndex >= 0 ? preselectedIndex : 0;
     }
 
     Column {
@@ -51,11 +46,11 @@ Dialog {
             anchors.horizontalCenter: parent.horizontalCenter
             model: availableCocktails
             textRole: "name"
-            valueRole: "id"
+            valueRole: "uuid"
 
             onCurrentIndexChanged: {
                 if (currentIndex >= 0) {
-                    selectCocktailDialog.selectedCocktailId = availableCocktails[currentIndex].id;
+                    selectCocktailDialog.selectedCocktailUuid = availableCocktails[currentIndex].uuid;
                 }
             }
         }
@@ -63,7 +58,7 @@ Dialog {
 
     onAccepted: {
         if (onSave) {
-            onSave(selectedCocktailId);
+            onSave(selectedCocktailUuid);
         }
     }
 

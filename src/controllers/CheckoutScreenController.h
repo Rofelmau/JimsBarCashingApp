@@ -46,12 +46,12 @@ public:
     int returnedCups() const;
     QVariantList appliedDiscounts() const;
 
-    Q_INVOKABLE void cocktailSelected(int cocktailId);
-    Q_INVOKABLE void decreaseQuantity(int cocktailId);
+    Q_INVOKABLE void cocktailSelected(const QString &cocktailUuid);
+    Q_INVOKABLE void decreaseQuantity(const QString &cocktailUuid);
     Q_INVOKABLE void confirmPayment(int paymentMethod);
     Q_INVOKABLE void returnCup();
-    Q_INVOKABLE void applyDiscount(int discountId);
-    Q_INVOKABLE void decreaseDiscountQuantity(int discountId);
+    Q_INVOKABLE void applyDiscount(const QString &discountUuid);
+    Q_INVOKABLE void decreaseDiscountQuantity(const QString &discountUuid);
 
 signals:
     void pricePerCocktailChanged();

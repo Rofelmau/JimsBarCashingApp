@@ -9,7 +9,7 @@ Dialog {
     id: addDiscountDialog
     modal: true
     property bool isEditMode: false
-    property int discountId: -1
+    property string discountUuid: ""
 
     title: isEditMode ? "Rabatt bearbeiten" : "Neuen Rabatt hinzufügen"
 
@@ -109,23 +109,21 @@ Dialog {
                 text: isEditMode ? "Speichern" : "Hinzufügen"
                 enabled: nameField.text.length > 0 && (valueField.enabled ? valueField.text.length > 0 : true)
                 onClicked: {
-                    const discountValues = discountTypeHelper.values();
-
                     if (isEditMode) {
                         DiscountsConfigurationScreenController.updateDiscount(
-                            discountId,
+                            discountUuid,
                             nameField.text,
                             typeComboBox.currentIndex,
                             parseFloat(valueField.text),
-                            cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1,
-                        )
+                            cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1
+                        );
                     } else {
                         DiscountsConfigurationScreenController.addDiscount(
                             nameField.text,
                             typeComboBox.currentIndex,
                             parseFloat(valueField.text),
-                            cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1,
-                        )
+                            cocktailLimitField.text.length > 0 ? parseInt(cocktailLimitField.text) : -1
+                        );
                     }
                     addDiscountDialog.close();
                 }
@@ -135,7 +133,7 @@ Dialog {
 
     function openForEdit(discount) {
         isEditMode = true;
-        discountId = discount.discountId;
+        discountUuid = discount.discountId;
         nameField.text = discount.name;
         typeComboBox.currentIndex = discount.typeValue;
         valueField.text = discount.value.toString();
@@ -150,7 +148,7 @@ Dialog {
 
     function openForAdd() {
         isEditMode = false;
-        discountId = -1;
+        discountUuid = "";
         nameField.text = "";
         typeComboBox.currentIndex = 0;
         valueField.text = "-1.0";

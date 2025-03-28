@@ -104,7 +104,7 @@ Page {
                             gradientStart: "#8bc34a"
                             gradientEnd: "#689f38"
                             onClickedAction: function() {
-                                controller.cocktailSelected(modelData.id);
+                                controller.cocktailSelected(modelData.uuid);
                             }
                         }
                     }
@@ -183,7 +183,7 @@ Page {
                             }
 
                             onClicked: {
-                                controller.applyDiscount(modelData.id);
+                                controller.applyDiscount(modelData.uuid);
                             }
                         }
                     }
@@ -395,7 +395,7 @@ Page {
                                 width: 40
                                 height: 20
                                 text: "-"
-                                onClicked: controller.decreaseQuantity(modelData.id);
+                                onClicked: controller.decreaseQuantity(modelData.uuid);
                             }
                         }
                     }
@@ -423,7 +423,7 @@ Page {
                                 width: 40
                                 height: 20
                                 text: "-"
-                                onClicked: controller.decreaseDiscountQuantity(modelData.id);
+                                onClicked: controller.decreaseDiscountQuantity(modelData.uuid);
                             }
                         }
                     }

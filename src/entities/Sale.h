@@ -19,14 +19,14 @@ enum class PaymentMethod {
 
 class SaleDetail {
 public:
-    SaleDetail(int cocktailId, int quantity);
+    SaleDetail(const QString &cocktailUuid, int quantity);
 
-    int getCocktailId() const;
+    QString getCocktailUuid() const;
     int getQuantity() const;
     void setQuantity(int quantity);
 
 private:
-    int cocktailId;
+    QString cocktailUuid;
     int quantity;
 };
 
@@ -55,15 +55,15 @@ public:
     void addDetail(const SaleDetail &detail);
     void setPaymentMethod(PaymentMethod method);
 
-    void incrementQuantity(int cocktailId);
-    void decrementQuantity(int cocktailId);
+    void incrementQuantity(const QString &cocktailUuid);
+    void decrementQuantity(const QString &cocktailUuid);
     void incrementReturnedCups();
     int getReturnedCups() const;
 
     void incerementDiscountQuantity(QSharedPointer<Discount> discount);
     void decrementDiscountQuantity(QSharedPointer<Discount> discount);
     QSet<QSharedPointer<Discount>> getAppliedDiscounts() const;
-    int getDiscountQuantity(int discountId) const;
+    int getDiscountQuantity(const QString &discountUuid) const;
 
     int getTotalCocktailCount() const;
 
@@ -77,6 +77,6 @@ private:
     PaymentMethod m_paymentMethod;
     int returnedCups = 0;
 
-    QHash<int, int> discountQuantities;
-    QHash<int, QSharedPointer<Discount>> discountLookup;
+    QHash<QString, int> discountQuantities;
+    QHash<QString, QSharedPointer<Discount>> discountLookup;
 };

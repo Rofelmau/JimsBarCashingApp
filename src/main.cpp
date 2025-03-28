@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include "Version.h"
+
 #include "DatabaseManager.h"
 
 #include "CashBalanceRepository.h"
@@ -39,6 +41,10 @@
 int main(int argc, char *argv[])
 {
     LOG_FUNCTION();
+
+    Logger::LogInfo("##########################################################");
+    Logger::LogInfo(QString("Application started. Version: %1").arg(APP_VERSION).toStdString());
+    Logger::LogInfo("##########################################################");
 
     if (!QSslSocket::supportsSsl()) {
         Logger::LogError("SSL/TLS support is not available. Please install OpenSSL.");

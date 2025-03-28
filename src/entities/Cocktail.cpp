@@ -1,14 +1,16 @@
 #include "Cocktail.h"
 
-Cocktail::Cocktail(int id, const QString &name)
-    : id(id)
+#include <QUuid>
+
+Cocktail::Cocktail(const QString &uuid, const QString &name)
+    : uuid(uuid.isEmpty() ? QUuid::createUuid().toString() : uuid)
     , name(name)
 {
 }
 
 Cocktail::Cocktail(const Cocktail &other)
 {
-    id = other.id;
+    uuid = other.uuid;
     name = other.name;
     ingredients = other.ingredients;
 }
@@ -16,16 +18,11 @@ Cocktail::Cocktail(const Cocktail &other)
 Cocktail &Cocktail::operator=(const Cocktail &other)
 {
     if (this != &other) {
-        id = other.id;
+        uuid = other.uuid;
         name = other.name;
         ingredients = other.ingredients;
     }
     return *this;
-}
-
-int Cocktail::getId() const
-{
-    return id;
 }
 
 QString Cocktail::getName() const
@@ -43,13 +40,18 @@ void Cocktail::setIngredients(const QStringList &ingredients)
     this->ingredients = ingredients;
 }
 
+QString Cocktail::getUuid() const
+{
+    return uuid;
+}
+
 bool Cocktail::operator==(const Cocktail &other) const
 {
-    return id == other.getId() && name.compare(other.getName()) == 0;
+    return uuid == other.getUuid();
 }
 
 uint qHash(const Cocktail &cocktail, uint seed)
 {
-    return qHash(cocktail.getId(), seed) ^ qHash(cocktail.getName(), seed+1);
+    return qHash(cocktail.getUuid(), seed) ^ qHash(cocktail.getName(), seed+1);
 }
 

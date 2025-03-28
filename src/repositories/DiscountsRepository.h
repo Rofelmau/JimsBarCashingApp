@@ -14,10 +14,9 @@ public:
     QList<QSharedPointer<Discount>> getAllDiscounts() const;
     bool addDiscount(const Discount &discount);
     bool updateDiscount(const Discount &discount);
-    bool deleteDiscount(int discountId);
-
-    QSharedPointer<Discount> getDiscountById(int discountId);
-    bool updateDiscountActiveStatus(int discountId, bool active);
+    bool deleteDiscount(const QString &uuid);
+    QSharedPointer<Discount> getDiscountByUuid(const QString &uuid) const;
+    bool updateDiscountActiveStatus(const QString &uuid, bool active);
 
     QJsonArray exportAsJson() const;
     void import(const QJsonArray &jsonArray);
