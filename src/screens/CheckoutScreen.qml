@@ -70,6 +70,10 @@ Page {
 
             Button {
                 text: "Kassenstand"
+
+                onClicked: {
+                    stackView.push("CashBalanceScreen.qml")
+                }
             }
         }
 

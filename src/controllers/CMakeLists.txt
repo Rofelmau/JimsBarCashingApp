@@ -1,5 +1,6 @@
 # Add the repository sources
 set(CONTROLLERS_SOURCES
+    CashBalanceScreenController.cpp
     CheckoutScreenController.cpp
     CocktailsConfigurationScreenController.cpp
     DiscountsConfigurationScreenController.cpp

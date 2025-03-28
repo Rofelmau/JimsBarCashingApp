@@ -1,17 +1,20 @@
 #include "CheckoutScreenController.h"
 
 #include "../entities/Sale.h"
+#include "../repositories/CashBalanceRepository.h"
 
 CheckoutScreenController::CheckoutScreenController(QSharedPointer<SettingsRepository> settingsRepo
                                                     , QSharedPointer<CocktailRepository> cocktailRepo
                                                     , QSharedPointer<SalesRepository> salesRepo
                                                     , QSharedPointer<DiscountsRepository> discountsRepo
+                                                    , QSharedPointer<CashBalanceRepository> cashBalanceRepo
                                                     , QObject *parent)
     : QObject(parent)
     , m_settingsRepository(settingsRepo)
     , m_cocktailRepository(cocktailRepo)
     , m_salesRepository(salesRepo)
     , m_discountsRepository(discountsRepo)
+    , m_cashBalanceRepository(cashBalanceRepo)
 {
     m_currentSale.setPricePerCocktail(m_settingsRepository->getGeneralSettings()->getPricePerCocktail());
     m_currentSale.setCupPawn(m_settingsRepository->getGeneralSettings()->getCupPawn());
@@ -112,6 +115,9 @@ void CheckoutScreenController::confirmPayment(int paymentMethod)
 {
     if (paymentMethod == static_cast<int>(PaymentMethod::Cash)) {
         m_currentSale.setPaymentMethod(PaymentMethod::Cash);
+
+        // Kassenstand aktualisieren
+        m_cashBalanceRepository->adjustBalance(m_currentSale.getTotalPrice(), "Sale completed");
     } else if (paymentMethod == static_cast<int>(PaymentMethod::Card)) {
         m_currentSale.setPaymentMethod(PaymentMethod::Card);
     }

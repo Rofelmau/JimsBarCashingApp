@@ -20,10 +20,10 @@ Statistics:
     ☐ Include Discount XY From Statistics
   ☐ Refine Layout
     ☐ Over-Time Datapoints should not be displayed on Y-Axis
-Cash balance:
-  ☐ Ask User to enter starting cash balance
-  ☐ Allow user to add/Remove Cash from the balance
-  ☐ Show Cash balance
+✔ Cash balance: @done(25-03-27 17:47)
+  ✔ Ask User to enter starting cash balance @started(25-03-27 16:38) @done(25-03-27 17:41) @lasted(1h3m29s)
+  ✔ Allow user to add/Remove Cash from the balance @started(25-03-27 17:35) @done(25-03-27 17:41) @lasted(6m30s)
+  ✔ Show Cash balance @started(25-03-27 17:35) @done(25-03-27 17:41) @lasted(6m30s)
 Checkout:
   ☐ Add Ingredients to Ingridient Button
   ☐ Add option to reduce the amount of returned cup
