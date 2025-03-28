@@ -6,7 +6,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Find Qt5 packages
-find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Qml)
+find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Qml Quick)
 
 # Fetch spdlog
 include(FetchContent)
@@ -43,9 +43,9 @@ add_executable(MyProject
 qt5_add_resources(QT_RESOURCES qml.qrc)
 
 # Link libraries
-target_link_libraries(MyProject PRIVATE repositories Qt5::Core Qt5::Sql Qt5::Widgets Qt5::Qml)
-target_link_libraries(MyProject PRIVATE controllers Qt5::Core Qt5::Widgets Qt5::Qml)
-target_link_libraries(MyProject PRIVATE spdlog::spdlog)
+target_link_libraries(MyProject PRIVATE repositories Qt5::Sql)
+target_link_libraries(MyProject PRIVATE controllers)
+target_link_libraries(MyProject PRIVATE spdlog::spdlog Qt5::Core Qt5::Widgets Qt5::Qml Qt5::Quick)
 
 target_include_directories(MyProject PRIVATE ${spdlog_SOURCE_DIR}/include)
 

@@ -2,12 +2,12 @@
 
 #include "../DatabaseManager.h"
 
+#include <QJsonArray>
 #include <QObject>
 #include <QSet>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include <QVariant>
 
 class Cocktail;
 
@@ -23,6 +23,9 @@ public:
     void addCocktail(const QString &name, const QStringList &ingredients) const;
     void deleteCocktail(int id) const;
     void editCocktail(int id, const QString &name, const QStringList &ingredients) const;
+
+    QJsonArray exportAsJson() const;
+    void import(const QJsonArray &jsonArray);
 
 private:
     void loadCocktailsIntoCache() const;

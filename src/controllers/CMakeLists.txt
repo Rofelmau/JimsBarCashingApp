@@ -5,6 +5,7 @@ set(CONTROLLERS_SOURCES
     CocktailsConfigurationScreenController.cpp
     DiscountsConfigurationScreenController.cpp
     GeneralSettingsScreenController.cpp
+    ImportExportScreenController.cpp
     SetWeatherComponentController.cpp
     StatisticsScreenController.cpp
     WeatherSettingsScreenController.cpp

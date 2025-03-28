@@ -100,6 +100,20 @@ Page {
                     stackView.push("CashBalanceScreen.qml")
                 }
             }
+
+            TileButton {
+                Layout.preferredWidth: 200
+                Layout.preferredHeight: 200
+                Layout.alignment: Qt.AlignCenter
+
+                buttonText: "Import/Export"
+                borderColor: "darkgreen"
+                gradientStart: "#8bc34a"
+                gradientEnd: "#689f38"
+                onClickedAction: function() {
+                    stackView.push("ImportExportScreen.qml")
+                }
+            }
         }
     }
 }

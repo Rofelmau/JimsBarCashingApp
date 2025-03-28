@@ -3,6 +3,8 @@
 #include "../DatabaseManager.h"
 #include "../entities/Cocktail.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSet>
 #include <QSharedPointer>
 #include <QSqlDatabase>
@@ -203,4 +205,45 @@ void CocktailRepository::editCocktail(const int id, const QString &name, const Q
     }
 
     loadCocktailsIntoCache();
+}
+
+QJsonArray CocktailRepository::exportAsJson() const
+{
+    QJsonArray cocktailsArray;
+
+    for (const QSharedPointer<Cocktail> &cocktail : m_cachedCocktails) {
+        QJsonObject cocktailObject;
+        cocktailObject["id"] = cocktail->getId();
+        cocktailObject["name"] = cocktail->getName();
+
+        QJsonArray ingredientsArray;
+        for (const QString &ingredient : cocktail->getIngredients()) {
+            ingredientsArray.append(ingredient);
+        }
+        cocktailObject["ingredients"] = ingredientsArray;
+
+        cocktailsArray.append(cocktailObject);
+    }
+
+    return cocktailsArray;
+}
+
+void CocktailRepository::import(const QJsonArray &jsonArray)
+{
+    for (const QJsonValue &value : jsonArray) {
+        if (!value.isObject()) {
+            continue;
+        }
+
+        QJsonObject cocktailObject = value.toObject();
+        QString name = cocktailObject["name"].toString();
+        QJsonArray ingredientsArray = cocktailObject["ingredients"].toArray();
+
+        QStringList ingredients;
+        for (const QJsonValue &ingredientValue : ingredientsArray) {
+            ingredients.append(ingredientValue.toString());
+        }
+
+        addCocktail(name, ingredients);
+    }
 }

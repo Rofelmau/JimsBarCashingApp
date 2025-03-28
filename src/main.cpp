@@ -14,6 +14,7 @@
 #include "CocktailsConfigurationScreenController.h"
 #include "DiscountsConfigurationScreenController.h"
 #include "GeneralSettingsScreenController.h"
+#include "ImportExportScreenController.h"
 #include "SetWeatherComponentController.h"
 #include "StatisticsScreenController.h"
 #include "WeatherSettingsScreenController.h"
@@ -104,6 +105,9 @@ int main(int argc, char *argv[])
     QSharedPointer<LocationService> locationService{new LocationService};
     SetWeatherComponentController setWeatherComponentController{weatherService, locationService, weatherRepository};
     engine.rootContext()->setContextProperty("SetWeatherComponentController", &setWeatherComponentController);
+
+    ImportExportScreenController importExportScreenController{settingsRepository, cocktailRepository, discountsRepository};
+    engine.rootContext()->setContextProperty("ImportExportScreenController", &importExportScreenController);
 
     Logger::LogInfo("Registering Models to QML ...");
     qmlRegisterType<DiscountModel>("JimsBarCashingApp", 1, 0, "DiscountModel");

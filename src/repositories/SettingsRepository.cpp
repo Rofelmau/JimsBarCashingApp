@@ -1,5 +1,10 @@
 #include "SettingsRepository.h"
 
+#include "../Logger.h"
+
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QVariant>
@@ -75,4 +80,55 @@ void SettingsRepository::updateSelectedCocktail(const int index, QSharedPointer<
     query.bindValue(":key", QString("selected_cocktail_%1").arg(index));
     query.bindValue(":value", cocktail ? QString::number(cocktail->getId()) : "-1");
     query.exec();
+}
+
+QJsonObject SettingsRepository::exportAsJson() const
+{
+    QJsonObject generalSettings;
+    QSharedPointer<GeneralSettings> settings = getGeneralSettings();
+
+    generalSettings["price_per_cocktail"] = settings->getPricePerCocktail();
+    generalSettings["cup_pawn"] = settings->getCupPawn();
+
+    QJsonArray selectedCocktails;
+    for (int i = 0; i < settings->getSelectedCocktails().size(); ++i) {
+        QSharedPointer<Cocktail> cocktail = settings->getSelectedCocktail(i);
+        selectedCocktails.append(cocktail ? cocktail->getId() : -1);
+    }
+    generalSettings["selected_cocktails"] = selectedCocktails;
+
+    return generalSettings;
+}
+
+void SettingsRepository::import(const QJsonObject &json)
+{
+    if (json.contains("price_per_cocktail")) {
+        updatePricePerCocktail(json["price_per_cocktail"].toDouble());
+    }
+
+    if (json.contains("cup_pawn")) {
+        updateCupPawn(json["cup_pawn"].toDouble());
+    }
+
+    if (json.contains("selected_cocktails") && json["selected_cocktails"].isArray()) {
+        QJsonArray selectedCocktails = json["selected_cocktails"].toArray();
+        for (int i = 0; i < selectedCocktails.size(); ++i) {
+            int cocktailId = selectedCocktails[i].toInt();
+            QSharedPointer<Cocktail> cocktail = (cocktailId == -1) ? nullptr : m_cocktailRepository->getCocktailById(cocktailId);
+            updateSelectedCocktail(i, cocktail);
+        }
+    }
+}
+
+int SettingsRepository::getDatabaseVersion() const
+{
+    QSqlQuery query(dbManager->database());
+    query.prepare("SELECT version FROM DatabaseVersion ORDER BY id DESC LIMIT 1");
+
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+
+    Logger::LogError("Failed to retrieve database version.");
+    return -1;
 }

@@ -85,3 +85,12 @@ CREATE TABLE IF NOT EXISTS CashRegisterLog (
     reason TEXT,
     timestamp TEXT DEFAULT (datetime('now', 'utc'))
 );
+
+-- Add a table for database versioning
+CREATE TABLE IF NOT EXISTS DatabaseVersion (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version INTEGER NOT NULL
+);
+
+-- Insert the initial database version
+INSERT INTO DatabaseVersion (version) VALUES (1);

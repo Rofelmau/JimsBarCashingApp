@@ -4,6 +4,8 @@
 
 #include "DiscountType.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
@@ -28,7 +30,7 @@ DiscountsRepository::DiscountsRepository(QSharedPointer<DatabaseManager> dbManag
 {
 }
 
-QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts()
+QList<QSharedPointer<Discount>> DiscountsRepository::getAllDiscounts() const
 {
     QList<QSharedPointer<Discount>> discounts;
     QSqlQuery query(m_dbManager->database());
@@ -129,4 +131,44 @@ bool DiscountsRepository::updateDiscountActiveStatus(int discountId, bool active
     }
 
     return true;
+}
+
+QJsonArray DiscountsRepository::exportAsJson() const
+{
+    QJsonArray discountsArray;
+
+    for (const QSharedPointer<Discount> &discount : getAllDiscounts()) {
+        QJsonObject discountObject;
+        discountObject["id"] = discount->getId();
+        discountObject["name"] = discount->getName();
+        discountObject["type"] = static_cast<int>(discount->getType());
+        discountObject["value"] = discount->getValue();
+        discountObject["cocktail_limit"] = discount->getCocktailLimit();
+        discountObject["active"] = discount->isActive();
+
+        discountsArray.append(discountObject);
+    }
+
+    return discountsArray;
+}
+
+void DiscountsRepository::import(const QJsonArray &jsonArray)
+{
+    for (const QJsonValue &value : jsonArray) {
+        if (!value.isObject()) {
+            continue;
+        }
+
+        QJsonObject discountObject = value.toObject();
+        Discount discount(
+            discountObject["id"].toInt(),
+            discountObject["name"].toString(),
+            intToDiscountType(discountObject["type"].toInt()),
+            discountObject["value"].toDouble(),
+            discountObject["cocktail_limit"].toInt(),
+            discountObject["active"].toBool()
+        );
+
+        addDiscount(discount);
+    }
 }
