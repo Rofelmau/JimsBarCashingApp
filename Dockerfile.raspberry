@@ -1,0 +1,42 @@
+FROM balenalib/raspberrypi5-debian:bullseye-build
+
+# Install missing dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    sqlite3 \
+    git \
+    qtbase5-dev \
+    qtdeclarative5-dev \
+    qtlocation5-dev \
+    qtpositioning5-dev \
+    libqt5sql5 \
+    libqt5qml5 \
+    libqt5quick5 \
+    qttools5-dev-tools \
+    qt5-qtsql-plugins && \
+    apt-get clean
+
+# Install the latest version of CMake
+RUN apt-get remove -y cmake && \
+    apt-get update && \
+    apt-get install -y wget && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.27.6/cmake-3.27.6-linux-aarch64.sh && \
+    chmod +x cmake-3.27.6-linux-aarch64.sh && \
+    ./cmake-3.27.6-linux-aarch64.sh --skip-license --prefix=/usr/local && \
+    rm cmake-3.27.6-linux-aarch64.sh
+
+# Set working directory
+WORKDIR /app
+
+# Copy all project files
+COPY . /app
+
+# Ensure Qt plugins are available
+ENV QT_PLUGIN_PATH=/usr/lib/arm-linux-gnueabihf/qt5/plugins
+
+# Run CMake configuration to cache dependencies
+RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+# Build the project
+RUN cmake --build build --config Release

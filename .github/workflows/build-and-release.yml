@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - '**' # Trigger on all branches
+      - '**'
 
 jobs:
   build:
@@ -72,3 +72,44 @@ jobs:
         with:
           name: ${{ matrix.os }}-build
           path: dist/
+
+  build_rpi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Raspberry Pi container with QEMU
+        run: |
+          docker run --rm --platform linux/arm64 \
+          -v ${{ github.workspace }}:/workspace -w /workspace \
+          balenalib/raspberrypi5-debian sh -c "
+            apt-get update &&
+            apt-get install -y cmake ninja-build make gcc g++ git \
+                              qtbase5-dev qtchooser qt5-qmake qttools5-dev-tools \
+                              qtdeclarative5-dev qtquickcontrols2-5-dev \
+                              qtlocation5-dev qtpositioning5-dev \
+                              libqt5charts5 libqt5concurrent5 libqt5core5a \
+                              libqt5dbus5 libqt5gui5 libqt5location5 \
+                              libqt5network5 libqt5opengl5 libqt5opengl5-dev \
+                              libqt5positioning5 libqt5printsupport5 \
+                              libqt5qml5 libqt5quick5 libqt5quickcontrols2-5 \
+                              libqt5serialport5 libqt5sql5 libqt5svg5 \
+                              libqt5test5 libqt5waylandclient5 libqt5waylandcompositor5 \
+                              libqt5widgets5 libqt5xml5 \
+                              qt5-gtk-platformtheme qt5-qmltooling-plugins \
+                              libsqlite3-dev libsqlite3-0 libqt5sql5-sqlite mysql-common sqlite3 &&
+            cmake -S . -B build-rpi \
+                  -DCMAKE_SYSTEM_NAME=Linux \
+                  -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+                  -DCMAKE_C_COMPILER=gcc \
+                  -DCMAKE_CXX_COMPILER=g++ \
+                  -DCMAKE_MAKE_PROGRAM=make \
+                  -DCMAKE_PREFIX_PATH=/usr/lib/aarch64-linux-gnu/cmake/Qt5:/usr/lib/aarch64-linux-gnu/cmake/Qt5Positioning \
+                  -DCMAKE_BUILD_TYPE=Release \
+                  -DQT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/qt5/plugins &&
+            cmake --build build-rpi"
+        

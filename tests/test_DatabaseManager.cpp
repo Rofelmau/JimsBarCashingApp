@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
+#include <QCoreApplication>
 
 class DatabaseManagerTest : public ::testing::Test
 {
