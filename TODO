@@ -7,8 +7,8 @@ Generel Settings:
   ☐ Add "Disabled" Funtionality for Cup Pawn
     ☐ Add Button in General Settings to Set Cup Pawn to 0€
     ☐ Hide Cup Pawn Related Items in Checkout screen if Cup Pawn is disabled
-  ☐ Make it more obvious how to edit the Generel Settings
-    ☐ Add Buttons to open the Edit Dialog
+  ✔ Make it more obvious how to edit the Generel Settings @started(25-03-28 19:48) @done(25-04-01 23:37) @lasted(4d2h49m56s)
+    ✔ Add Buttons to open the Edit Dialog @started(25-03-28 19:48) @done(25-04-01 23:37) @lasted(4d2h49m55s)
 Weather:
   ✔ Ask user to set the Weather @done(25-03-27 16:25)
     ✔ Request Weather over internet. @started(25-03-24 23:02) @done(25-03-25 23:23) @lasted(1d21m30s)
