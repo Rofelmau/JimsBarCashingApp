@@ -4,7 +4,7 @@
 
 TEST(CocktailTest, DefaultConstructor) {
     Cocktail cocktail;
-    EXPECT_EQ(cocktail.getUuid(), "");
+    EXPECT_FALSE(cocktail.getUuid().isEmpty());
     EXPECT_EQ(cocktail.getName(), "");
     EXPECT_TRUE(cocktail.getIngredients().isEmpty());
 }
