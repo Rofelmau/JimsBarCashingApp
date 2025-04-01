@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -35,5 +34,3 @@ private:
 };
 
 #define LOG_FUNCTION() Logger::FunctionLogger functionLogger(__FUNCTION__)
-
-#endif // LOGGER_H

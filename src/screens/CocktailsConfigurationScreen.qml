@@ -38,7 +38,7 @@ Page {
             spacing: 10
 
             delegate: Item {
-                width: parent.width
+                width: cocktailsListView.width
                 height: 100
 
                 Column {
@@ -55,19 +55,19 @@ Page {
                         Button {
                             text: "Bearbeiten"
                             onClicked: {
-                                editCocktailDialog.cocktailId = modelData.id
-                                editCocktailDialog.cocktailName = modelData.name
-                                editCocktailDialog.cocktailIngredients = modelData.ingredients.slice()
-                                editCocktailDialog.open()
+                                editCocktailDialog.cocktailId = modelData.uuid;
+                                editCocktailDialog.cocktailName = modelData.name;
+                                editCocktailDialog.cocktailIngredients = modelData.ingredients.slice();
+                                editCocktailDialog.open();
                             }
                         }
 
                         Button {
                             text: "Löschen"
                             onClicked: {
-                                deleteCocktailDialog.cocktailId = modelData.id
-                                deleteCocktailDialog.cocktailName = modelData.name
-                                deleteCocktailDialog.open()
+                                deleteCocktailDialog.cocktailId = modelData.uuid;
+                                deleteCocktailDialog.cocktailName = modelData.name;
+                                deleteCocktailDialog.open();
                             }
                         }
                     }
@@ -94,8 +94,12 @@ Page {
         property var newCocktailIngredients: []
 
         onOpened: {
-            addCocktailDialog.x = (parent.width - addCocktailDialog.width) / 2
-            addCocktailDialog.y = (parent.height - addCocktailDialog.height) / 2
+            newCocktailNameField.text = "";
+            addCocktailDialog.newCocktailIngredients = [];
+            newIngredientsListView.model = addCocktailDialog.newCocktailIngredients.slice();
+
+            addCocktailDialog.x = (parent.width - addCocktailDialog.width) / 2;
+            addCocktailDialog.y = (parent.height - addCocktailDialog.height) / 2;
         }
 
         ColumnLayout {
@@ -106,6 +110,7 @@ Page {
                 id: newCocktailNameField
                 placeholderText: "Cocktail namen eingeben ..."
                 width: parent.width * 0.8
+                onTextChanged: saveButton.enabled = text !== ""
             }
 
             ListView {
@@ -173,6 +178,7 @@ Page {
                         addCocktailDialog.newCocktailIngredients.push(newIngredientField.text)
                         newIngredientField.clear()
                         newIngredientsListView.model = addCocktailDialog.newCocktailIngredients.slice()
+                        saveButton.enabled = newCocktailNameField.text !== ""
                     }
                 }
             }
@@ -191,8 +197,9 @@ Page {
                 }
 
                 Button {
+                    id: saveButton
                     text: "Speichern"
-                    enabled: newCocktailNameField.text !== ""
+                    enabled: false
                     onClicked: {
                         CocktailsConfigurationScreenController.addNewCocktail(newCocktailNameField.text, addCocktailDialog.newCocktailIngredients)
                         newCocktailNameField.clear()
@@ -210,16 +217,17 @@ Page {
         height: parent.height * 0.8
         modal: true
 
-        property int cocktailId
+        property string cocktailId
         property string cocktailName
         property var cocktailIngredients
 
         onOpened: {
-            editCocktailDialog.cocktailIngredients = editCocktailDialog.cocktailIngredients.slice()
-            ingredientsListView.model = cocktailIngredients.slice()
+            editCocktailNameField.text = editCocktailDialog.cocktailName;
+            editCocktailDialog.cocktailIngredients = editCocktailDialog.cocktailIngredients.slice();
+            editIngredientsListView.model = editCocktailDialog.cocktailIngredients.slice();
 
-            editCocktailDialog.x = (parent.width - editCocktailDialog.width) / 2
-            editCocktailDialog.y = (parent.height - editCocktailDialog.height) / 2
+            editCocktailDialog.x = (parent.width - editCocktailDialog.width) / 2;
+            editCocktailDialog.y = (parent.height - editCocktailDialog.height) / 2;
         }
 
         ColumnLayout {
@@ -231,11 +239,12 @@ Page {
                 Layout.fillWidth: true
                 height: 40
                 text: editCocktailDialog.cocktailName
-                placeholderText: "Cocktail namen einfügen ..."
+                placeholderText: "Cocktailnamen eingeben ..."
+                onTextChanged: editSaveButton.enabled = text !== ""
             }
 
             ListView {
-                id: ingredientsListView
+                id: editIngredientsListView
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -247,32 +256,22 @@ Page {
                     width: parent.width
                     height: 40
 
-                    Column {
-                        spacing: 5
+                    Row {
+                        spacing: 10
 
-                        Row {
-                            spacing: 10
-
-                            Text {
-                                text: modelData
-                                width: parent.width * 0.75
-                                height: parent.height
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            Button {
-                                text: "Entfernen"
-                                onClicked: {
-                                    editCocktailDialog.cocktailIngredients.splice(index, 1)
-                                    ingredientsListView.model = editCocktailDialog.cocktailIngredients.slice()
-                                }
-                            }
+                        Text {
+                            text: modelData
+                            width: parent.width * 0.75
+                            height: parent.height
+                            verticalAlignment: Text.AlignVCenter
                         }
 
-                        Rectangle {
-                            width: parent.width
-                            height: 1
-                            color: "lightgray"
+                        Button {
+                            text: "Entfernen"
+                            onClicked: {
+                                editCocktailDialog.cocktailIngredients.splice(index, 1);
+                                editIngredientsListView.model = editCocktailDialog.cocktailIngredients.slice();
+                            }
                         }
                     }
                 }
@@ -287,18 +286,21 @@ Page {
                 height: 40
 
                 TextField {
-                    id: newIngredientForNewCocktailField
-                    placeholderText: "Zutat eintrage ..."
+                    id: newEditIngredientField
+                    placeholderText: "Zutat eingeben ..."
                     Layout.fillWidth: true
                 }
 
                 Button {
-                    text: "Zutat Hinzufügen"
-                    enabled: newIngredientForNewCocktailField.text !== ""
+                    text: "Zutat hinzufügen"
+                    enabled: newEditIngredientField.text !== ""
                     onClicked: {
-                        editCocktailDialog.cocktailIngredients.push(newIngredientForNewCocktailField.text)
-                        newIngredientForNewCocktailField.clear()
-                        ingredientsListView.model = editCocktailDialog.cocktailIngredients.slice()
+                        if (!editCocktailDialog.cocktailIngredients.includes(newEditIngredientField.text)) {
+                            editCocktailDialog.cocktailIngredients.push(newEditIngredientField.text);
+                            newEditIngredientField.clear();
+                            editIngredientsListView.model = editCocktailDialog.cocktailIngredients.slice();
+                            editSaveButton.enabled = editCocktailNameField.text !== ""
+                        }
                     }
                 }
             }
@@ -310,28 +312,32 @@ Page {
                 Button {
                     text: "Abbrechen"
                     onClicked: {
-                        editCocktailDialog.close()
+                        editCocktailDialog.close();
                     }
                 }
 
                 Button {
+                    id: editSaveButton
                     text: "Speichern"
-                    enabled: editCocktailNameField.text !== ""
+                    enabled: false
                     onClicked: {
-                        CocktailsConfigurationScreenController.editCocktail(editCocktailDialog.cocktailId, editCocktailNameField.text, editCocktailDialog.cocktailIngredients.slice())
-                        editCocktailDialog.close()
+                        CocktailsConfigurationScreenController.editCocktail(
+                            editCocktailDialog.cocktailId,
+                            editCocktailNameField.text,
+                            editCocktailDialog.cocktailIngredients.slice()
+                        );
+                        editCocktailDialog.close();
                     }
                 }
             }
         }
     }
  
-
     Dialog {
         id: deleteCocktailDialog
         modal: true
 
-        property int cocktailId
+        property string cocktailId
         property string cocktailName
 
         onOpened: {

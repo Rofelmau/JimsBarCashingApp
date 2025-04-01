@@ -38,7 +38,7 @@ QVariantList CheckoutScreenController::selectedCocktails() const
     for (const auto &cocktail : cocktails) {
         if (cocktail) {
             QVariantMap cocktailData;
-            cocktailData["id"] = cocktail->getId();
+            cocktailData["uuid"] = cocktail->getUuid();
             cocktailData["name"] = cocktail->getName();
             cocktailsList.append(cocktailData);
         }
@@ -47,20 +47,22 @@ QVariantList CheckoutScreenController::selectedCocktails() const
     return cocktailsList;
 }
 
-void CheckoutScreenController::cocktailSelected(int cocktailId)
+void CheckoutScreenController::cocktailSelected(const QString &cocktailUuid)
 {
-    auto cocktail = m_cocktailRepository->getCocktailById(cocktailId);
+    auto cocktail = m_cocktailRepository->getCocktailByUuid(cocktailUuid);
     if (cocktail) {
-        m_currentSale.incrementQuantity(cocktailId);
-
+        m_currentSale.incrementQuantity(cocktail->getUuid());
         emit currentSaleUpdated();
     }
 }
 
-void CheckoutScreenController::decreaseQuantity(int cocktailId)
+void CheckoutScreenController::decreaseQuantity(const QString &cocktailUuid)
 {
-    m_currentSale.decrementQuantity(cocktailId);
-    emit currentSaleUpdated();
+    auto cocktail = m_cocktailRepository->getCocktailByUuid(cocktailUuid);
+    if (cocktail) {
+        m_currentSale.decrementQuantity(cocktail->getUuid());
+        emit currentSaleUpdated();
+    }
 }
 
 QVariantList CheckoutScreenController::currentSaleDetails() const
@@ -68,11 +70,11 @@ QVariantList CheckoutScreenController::currentSaleDetails() const
     QVariantList detailsList;
     for (const SaleDetail &detail : m_currentSale.getDetails()) {
         QVariantMap detailData;
-        auto cocktail = m_cocktailRepository->getCocktailById(detail.getCocktailId());
+        auto cocktail = m_cocktailRepository->getCocktailByUuid(detail.getCocktailUuid());
         if (cocktail) {
             detailData["name"] = cocktail->getName();
             detailData["quantity"] = detail.getQuantity();
-            detailData["id"] = cocktail->getId();
+            detailData["uuid"] = cocktail->getUuid();
             detailsList.append(detailData);
         }
     }
@@ -104,8 +106,8 @@ QVariantList CheckoutScreenController::appliedDiscounts() const
 
         QVariantMap discountData;
         discountData["name"] = discount->getName();
-        discountData["quantity"] = m_currentSale.getDiscountQuantity(discount->getId());
-        discountData["id"] = discount->getId();
+        discountData["quantity"] = m_currentSale.getDiscountQuantity(discount->getUuid());
+        discountData["uuid"] = discount->getUuid();
         discountsList.append(discountData);
     }
     return discountsList;
@@ -145,7 +147,7 @@ QVariantList CheckoutScreenController::availableDiscounts() const
     for (const auto &discount : discounts) {
         if (discount && discount->isActive()) {
             QVariantMap discountData;
-            discountData["id"] = discount->getId();
+            discountData["uuid"] = discount->getUuid();
             discountData["name"] = discount->getName();
             discountData["infoText"] = discount->getInfoText();
             discountsList.append(discountData);
@@ -155,18 +157,18 @@ QVariantList CheckoutScreenController::availableDiscounts() const
     return discountsList;
 }
 
-void CheckoutScreenController::applyDiscount(int discountId)
+void CheckoutScreenController::applyDiscount(const QString &discountUuid)
 {
-    const QSharedPointer<Discount> discount = m_discountsRepository->getDiscountById(discountId);
+    const QSharedPointer<Discount> discount = m_discountsRepository->getDiscountByUuid(discountUuid);
     if (discount) {
         m_currentSale.incerementDiscountQuantity(discount);
         emit currentSaleUpdated();
     }
 }
 
-void CheckoutScreenController::decreaseDiscountQuantity(int discountId)
+void CheckoutScreenController::decreaseDiscountQuantity(const QString &discountUuid)
 {
-    const QSharedPointer<Discount> discount = m_discountsRepository->getDiscountById(discountId);
+    const QSharedPointer<Discount> discount = m_discountsRepository->getDiscountByUuid(discountUuid);
     if (!discount) {
         return;
     }

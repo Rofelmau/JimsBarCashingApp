@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include "Version.h"
+
 #include "DatabaseManager.h"
 
 #include "CashBalanceRepository.h"
@@ -14,6 +16,7 @@
 #include "CocktailsConfigurationScreenController.h"
 #include "DiscountsConfigurationScreenController.h"
 #include "GeneralSettingsScreenController.h"
+#include "ImportExportScreenController.h"
 #include "SetWeatherComponentController.h"
 #include "StatisticsScreenController.h"
 #include "WeatherSettingsScreenController.h"
@@ -38,6 +41,10 @@
 int main(int argc, char *argv[])
 {
     LOG_FUNCTION();
+
+    Logger::LogInfo("##########################################################");
+    Logger::LogInfo(QString("Application started. Version: %1").arg(APP_VERSION).toStdString());
+    Logger::LogInfo("##########################################################");
 
     if (!QSslSocket::supportsSsl()) {
         Logger::LogError("SSL/TLS support is not available. Please install OpenSSL.");
@@ -104,6 +111,9 @@ int main(int argc, char *argv[])
     QSharedPointer<LocationService> locationService{new LocationService};
     SetWeatherComponentController setWeatherComponentController{weatherService, locationService, weatherRepository};
     engine.rootContext()->setContextProperty("SetWeatherComponentController", &setWeatherComponentController);
+
+    ImportExportScreenController importExportScreenController{settingsRepository, cocktailRepository, discountsRepository};
+    engine.rootContext()->setContextProperty("ImportExportScreenController", &importExportScreenController);
 
     Logger::LogInfo("Registering Models to QML ...");
     qmlRegisterType<DiscountModel>("JimsBarCashingApp", 1, 0, "DiscountModel");

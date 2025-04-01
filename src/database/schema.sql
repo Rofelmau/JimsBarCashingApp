@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS Settings (
 
 -- Cocktails table
 CREATE TABLE IF NOT EXISTS Cocktails (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT PRIMARY KEY,
     name TEXT
 );
 
@@ -19,15 +19,15 @@ CREATE TABLE IF NOT EXISTS Ingredients (
 
 -- CocktailIngredients table
 CREATE TABLE IF NOT EXISTS CocktailIngredients (
-    cocktail_id INTEGER,
+    cocktail_uuid TEXT,
     ingredient_id INTEGER,
-    FOREIGN KEY(cocktail_id) REFERENCES Cocktails(id),
+    FOREIGN KEY(cocktail_uuid) REFERENCES Cocktails(uuid),
     FOREIGN KEY(ingredient_id) REFERENCES Ingredients(id)
 );
 
 -- Discounts table
 CREATE TABLE IF NOT EXISTS Discounts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT PRIMARY KEY,
     name TEXT,
     type INTEGER,
     value REAL,
@@ -38,9 +38,10 @@ CREATE TABLE IF NOT EXISTS Discounts (
 -- SalesDiscounts table
 CREATE TABLE IF NOT EXISTS SalesDiscounts (
     sale_id INTEGER,
-    discount_id INTEGER,
+    discount_uuid TEXT,
+    quantity INTEGER,
     FOREIGN KEY(sale_id) REFERENCES Sales(id),
-    FOREIGN KEY(discount_id) REFERENCES Discounts(id)
+    FOREIGN KEY(discount_uuid) REFERENCES Discounts(uuid)
 );
 
 -- Sales table
@@ -56,10 +57,10 @@ CREATE TABLE IF NOT EXISTS Sales (
 -- SalesDetails table
 CREATE TABLE IF NOT EXISTS SalesDetails (
     sale_id INTEGER,
-    cocktail_id INTEGER,
+    cocktail_uuid TEXT,
     quantity INTEGER,
     FOREIGN KEY(sale_id) REFERENCES Sales(id),
-    FOREIGN KEY(cocktail_id) REFERENCES Cocktails(id)
+    FOREIGN KEY(cocktail_uuid) REFERENCES Cocktails(uuid)
 );
 
 -- Weather table
@@ -84,4 +85,10 @@ CREATE TABLE IF NOT EXISTS CashRegisterLog (
     new_balance REAL NOT NULL,
     reason TEXT,
     timestamp TEXT DEFAULT (datetime('now', 'utc'))
+);
+
+-- Add a table for database versioning
+CREATE TABLE IF NOT EXISTS DatabaseVersion (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version INTEGER NOT NULL
 );

@@ -1,8 +1,9 @@
 #include "CocktailsConfigurationScreenController.h"
 
 #include <Cocktail.h>
-
 #include "../Logger.h"
+
+#include <QUuid>
 
 #include <algorithm>
 
@@ -24,7 +25,7 @@ QVariantList CocktailsConfigurationScreenController::cocktails() const
 
     for (const QSharedPointer<Cocktail> &cocktail : sortedCocktails) {
         QVariantMap cocktailMap;
-        cocktailMap["id"] = cocktail->getId();
+        cocktailMap["uuid"] = cocktail->getUuid();
         cocktailMap["name"] = cocktail->getName();
         cocktailMap["ingredients"] = cocktail->getIngredients();
         cocktailList.append(cocktailMap);
@@ -32,19 +33,30 @@ QVariantList CocktailsConfigurationScreenController::cocktails() const
     return cocktailList;
 }
 
-void CocktailsConfigurationScreenController::editCocktail(const int id, const QString &name, const QStringList &ingredients) {
+void CocktailsConfigurationScreenController::editCocktail(const QString &uuid, const QString &name, const QStringList &ingredients)
+{
+    if (uuid.isEmpty()) {
+        Logger::LogWarn("Cannot edit cocktail: UUID is empty.");
+        return;
+    }
+
     if (name.isEmpty()) {
         Logger::LogWarn("Cocktail name cannot be empty!");
         return;
     }
 
-    m_cocktailRepository->editCocktail(id, name, ingredients);
+    m_cocktailRepository->editCocktail(uuid, name, ingredients);
     emit cocktailsChanged();
 }
 
-void CocktailsConfigurationScreenController::deleteCocktail(const int id)
+void CocktailsConfigurationScreenController::deleteCocktail(const QString &uuid)
 {
-    m_cocktailRepository->deleteCocktail(id);
+    if (uuid.isEmpty()) {
+        Logger::LogWarn("Cannot delete cocktail: UUID is empty.");
+        return;
+    }
+
+    m_cocktailRepository->deleteCocktail(uuid);
     emit cocktailsChanged();
 }
 

@@ -1,5 +1,10 @@
 #include "SettingsRepository.h"
 
+#include "../Logger.h"
+
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QVariant>
@@ -20,29 +25,20 @@ QSharedPointer<GeneralSettings> SettingsRepository::getGeneralSettings() const
     QSqlQuery query(dbManager->database());
     query.prepare("SELECT key, value FROM Settings");
 
-    if (query.exec())
-    {
-        while (query.next())
-        {
+    if (query.exec()) {
+        while (query.next()) {
             QString key = query.value("key").toString();
             QString value = query.value("value").toString();
 
-            if (key == "price_per_cocktail")
-            {
+            if (key == "price_per_cocktail") {
                 settings->setPricePerCocktail(value.toDouble());
-            }
-            else if (key == "cup_pawn")
-            {
+            } else if (key == "cup_pawn") {
                 settings->setCupPawn(value.toDouble());
-            }
-            else if (key.startsWith("selected_cocktail_"))
-            {
+            } else if (key.startsWith("selected_cocktail_")) {
                 bool ok;
                 int index = key.mid(18).toInt(&ok);
-                if (ok)
-                {
-                    int cocktailId = value.toInt();
-                    QSharedPointer<Cocktail> cocktail = (cocktailId == -1) ? nullptr : m_cocktailRepository->getCocktailById(cocktailId);
+                if (ok) {
+                    QSharedPointer<Cocktail> cocktail = m_cocktailRepository->getCocktailByUuid(value);
                     settings->setSelectedCocktail(index, cocktail);
                 }
             }
@@ -73,6 +69,57 @@ void SettingsRepository::updateSelectedCocktail(const int index, QSharedPointer<
     QSqlQuery query(dbManager->database());
     query.prepare("UPDATE Settings SET value = :value WHERE key = :key");
     query.bindValue(":key", QString("selected_cocktail_%1").arg(index));
-    query.bindValue(":value", cocktail ? QString::number(cocktail->getId()) : "-1");
+    query.bindValue(":value", cocktail ? cocktail->getUuid() : "");
     query.exec();
+}
+
+QJsonObject SettingsRepository::exportAsJson() const
+{
+    QJsonObject generalSettings;
+    QSharedPointer<GeneralSettings> settings = getGeneralSettings();
+
+    generalSettings["price_per_cocktail"] = settings->getPricePerCocktail();
+    generalSettings["cup_pawn"] = settings->getCupPawn();
+
+    QJsonArray selectedCocktails;
+    for (int i = 0; i < settings->getSelectedCocktails().size(); ++i) {
+        QSharedPointer<Cocktail> cocktail = settings->getSelectedCocktail(i);
+        selectedCocktails.append(cocktail ? cocktail->getUuid() : "");
+    }
+    generalSettings["selected_cocktails"] = selectedCocktails;
+
+    return generalSettings;
+}
+
+void SettingsRepository::import(const QJsonObject &json)
+{
+    if (json.contains("price_per_cocktail")) {
+        updatePricePerCocktail(json["price_per_cocktail"].toDouble());
+    }
+
+    if (json.contains("cup_pawn")) {
+        updateCupPawn(json["cup_pawn"].toDouble());
+    }
+
+    if (json.contains("selected_cocktails") && json["selected_cocktails"].isArray()) {
+        QJsonArray selectedCocktails = json["selected_cocktails"].toArray();
+        for (int i = 0; i < selectedCocktails.size(); ++i) {
+            QString cocktailUuid = selectedCocktails[i].toString();
+            QSharedPointer<Cocktail> cocktail = cocktailUuid.isEmpty() ? nullptr : m_cocktailRepository->getCocktailByUuid(cocktailUuid);
+            updateSelectedCocktail(i, cocktail);
+        }
+    }
+}
+
+int SettingsRepository::getDatabaseVersion() const
+{
+    QSqlQuery query(dbManager->database());
+    query.prepare("SELECT version FROM DatabaseVersion ORDER BY id DESC LIMIT 1");
+
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    }
+
+    Logger::LogError("Failed to retrieve database version.");
+    return -1;
 }

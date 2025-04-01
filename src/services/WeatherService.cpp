@@ -1,11 +1,11 @@
 #include "WeatherService.h"
 
+#include "../Logger.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QNetworkRequest>
-
-#include <QDebug>
 
 WeatherService::WeatherService(QObject *parent)
     : QObject(parent)
@@ -27,7 +27,7 @@ void WeatherService::fetchWeather(double latitude, double longitude)
 void WeatherService::onWeatherReply(QNetworkReply *reply)
 {
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "Fehler beim Abrufen des Wetters:" << reply->errorString();
+        Logger::LogWarn("Fehler beim Abrufen des Wetters:" + reply->errorString().toStdString());
         emit fetchFailed(reply->errorString());
         reply->deleteLater();
         return;

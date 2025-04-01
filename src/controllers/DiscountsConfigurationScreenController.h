@@ -17,9 +17,9 @@ public:
     DiscountModel *discountModel() const;
 
     Q_INVOKABLE void addDiscount(const QString &name, int type, double value, int cocktailLimit);
-    Q_INVOKABLE void updateDiscount(int id, const QString &name, int type, double value, int cocktailLimit);
-    Q_INVOKABLE void deleteDiscount(int id);
-    Q_INVOKABLE void toggleDiscountActiveStatus(int id, bool active);
+    Q_INVOKABLE void updateDiscount(const QString &uuid, const QString &name, int type, double value, int cocktailLimit);
+    Q_INVOKABLE void deleteDiscount(const QString &uuid);
+    Q_INVOKABLE void toggleDiscountActiveStatus(const QString &uuid, bool active);
 
 signals:
     void discountsChanged();

@@ -1,20 +1,22 @@
 #include "CocktailRepository.h"
 
 #include "../DatabaseManager.h"
+#include "../Logger.h"
 #include "../entities/Cocktail.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSet>
 #include <QSharedPointer>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 #include <QVariant>
 
 namespace {
     static bool validateDatabase(const QSqlDatabase &db) {
         if (!db.isValid() || !db.isOpen()) {
-            qDebug() << "Database is not open or invalid!";
+            Logger::LogError("Database is not open or invalid!");
             return false;
         }
         return true;
@@ -29,7 +31,7 @@ namespace {
             insertIngredientQuery.prepare("INSERT INTO Ingredients (name) VALUES (:name)");
             insertIngredientQuery.bindValue(":name", ingredient);
             if (!insertIngredientQuery.exec()) {
-                qDebug() << "Error inserting new ingredient: " << insertIngredientQuery.lastError();
+                Logger::LogError("Error inserting new ingredient: " + insertIngredientQuery.lastError().text().toStdString());
                 return false;
             }
         }
@@ -38,13 +40,15 @@ namespace {
 
     static void insertCocktailIngredient(const QSqlDatabase &db, int cocktailId, const QString &ingredient) {
         QSqlQuery insertIngredientsQuery(db);
-        insertIngredientsQuery.prepare("INSERT INTO CocktailIngredients (cocktail_id, ingredient_id) "
-                                       "SELECT :cocktail_id, id FROM Ingredients WHERE name = :name");
-        insertIngredientsQuery.bindValue(":cocktail_id", cocktailId);
+        insertIngredientsQuery.prepare(R"(
+            INSERT INTO CocktailIngredients (cocktail_uuid, ingredient_id)
+            SELECT :cocktail_uuid, id FROM Ingredients WHERE name = :name
+        )");
+        insertIngredientsQuery.bindValue(":cocktail_uuid", cocktailId);
         insertIngredientsQuery.bindValue(":name", ingredient);
 
         if (!insertIngredientsQuery.exec()) {
-            qDebug() << "Error inserting ingredient: " << insertIngredientsQuery.lastError();
+            Logger::LogError("Error inserting ingredient: " + insertIngredientsQuery.lastError().text().toStdString());
         }
     }
 }
@@ -64,29 +68,25 @@ void CocktailRepository::loadCocktailsIntoCache() const
     }
 
     QSqlQuery query(db);
-    if (!query.exec("SELECT * FROM Cocktails")) {
-        qDebug() << "Error retrieving cocktails: " << query.lastError();
+    if (!query.exec("SELECT uuid, name FROM Cocktails")) {
+        Logger::LogError("Error retrieving cocktails: " + query.lastError().text().toStdString());
         return;
     }
 
     m_cachedCocktails.clear();
 
     while (query.next()) {
-        if (!query.value("id").isValid() || query.value("id").isNull()) {
-            qWarning() << "Invalid ID from database!";
-            continue;
-        }
-
-        const int id = query.value("id").toInt();
+        const QString uuid = query.value("uuid").toString();
         const QString name = query.value("name").toString();
-        QSharedPointer<Cocktail> cocktail(new Cocktail(id, name));
+        QSharedPointer<Cocktail> cocktail(new Cocktail(uuid, name));
 
-        // Retrieve ingredients
         QSqlQuery ingredientQuery(db);
-        ingredientQuery.prepare("SELECT Ingredients.name FROM Ingredients "
-                                "JOIN CocktailIngredients ON Ingredients.id = CocktailIngredients.ingredient_id "
-                                "WHERE CocktailIngredients.cocktail_id = :id");
-        ingredientQuery.bindValue(":id", id);
+        ingredientQuery.prepare(R"(
+            SELECT Ingredients.name FROM Ingredients
+            JOIN CocktailIngredients ON Ingredients.id = CocktailIngredients.ingredient_id
+            WHERE CocktailIngredients.cocktail_uuid = :uuid
+        )");
+        ingredientQuery.bindValue(":uuid", uuid);
         if (ingredientQuery.exec()) {
             QStringList ingredients;
             while (ingredientQuery.next()) {
@@ -94,7 +94,8 @@ void CocktailRepository::loadCocktailsIntoCache() const
             }
             cocktail->setIngredients(ingredients);
         } else {
-            qDebug() << "Error retrieving ingredients: " << ingredientQuery.lastError();
+            Logger::LogError("Error retrieving ingredients: " + ingredientQuery.lastError().text().toStdString());
+            continue;
         }
 
         m_cachedCocktails.insert(cocktail);
@@ -106,44 +107,58 @@ QSet<QSharedPointer<Cocktail>> CocktailRepository::getAllCocktails() const
     return m_cachedCocktails;
 }
 
-QSharedPointer<Cocktail> CocktailRepository::getCocktailById(int id) const
+QSharedPointer<Cocktail> CocktailRepository::getCocktailByUuid(const QString &uuid) const
 {
     for (const QSharedPointer<Cocktail> &cocktail : m_cachedCocktails) {
-        if (cocktail->getId() == id) {
+        if (cocktail->getUuid() == uuid) {
             return cocktail;
         }
     }
     return nullptr;
 }
 
+void CocktailRepository::addCocktail(const QString &uuid, const QString &name, const QStringList &ingredients) const
+{
+    QSqlDatabase db = dbManager->database();
+    if (!validateDatabase(db)) {
+        return;
+    }
+
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO Cocktails (uuid, name) VALUES (:uuid, :name)");
+    query.bindValue(":uuid", uuid);
+    query.bindValue(":name", name);
+
+    if (!query.exec()) {
+        Logger::LogError("Error adding new cocktail: " + query.lastError().text().toStdString());
+        return;
+    }
+
+    for (const QString &ingredient : ingredients) {
+        if (ensureIngredientExists(db, ingredient)) {
+            QSqlQuery insertIngredientQuery(db);
+            insertIngredientQuery.prepare(R"(
+                INSERT INTO CocktailIngredients (cocktail_uuid, ingredient_id)
+                SELECT :uuid, id FROM Ingredients WHERE name = :name
+            )");
+            insertIngredientQuery.bindValue(":uuid", uuid);
+            insertIngredientQuery.bindValue(":name", ingredient);
+
+            if (!insertIngredientQuery.exec()) {
+                Logger::LogError("Error inserting ingredient: " + insertIngredientQuery.lastError().text().toStdString());
+            }
+        }
+    }
+
+    loadCocktailsIntoCache();
+}
+
 void CocktailRepository::addCocktail(const QString &name, const QStringList &ingredients) const
 {
-    QSqlDatabase db = dbManager->database();
-    if (!validateDatabase(db)) {
-        return;
-    }
-
-    QSqlQuery query(db);
-    query.prepare("INSERT INTO Cocktails (name) VALUES (:name)");
-    query.bindValue(":name", name);
-
-    if (!query.exec()) {
-        qDebug() << "Error adding new cocktail: " << query.lastError();
-        return;
-    }
-
-    int cocktailId = query.lastInsertId().toInt();
-
-    for (const QString &ingredient : ingredients) {
-        if (ensureIngredientExists(db, ingredient)) {
-            insertCocktailIngredient(db, cocktailId, ingredient);
-        }
-    }
-
-    loadCocktailsIntoCache();
+    addCocktail(QUuid::createUuid().toString(), name, ingredients);
 }
 
-void CocktailRepository::deleteCocktail(int id) const
+void CocktailRepository::deleteCocktail(const QString &uuid) const
 {
     QSqlDatabase db = dbManager->database();
     if (!validateDatabase(db)) {
@@ -151,26 +166,17 @@ void CocktailRepository::deleteCocktail(int id) const
     }
 
     QSqlQuery query(db);
-    query.prepare("DELETE FROM Cocktails WHERE id = :id");
-    query.bindValue(":id", id);
+    query.prepare("DELETE FROM Cocktails WHERE uuid = :uuid");
+    query.bindValue(":uuid", uuid);
 
     if (!query.exec()) {
-        qDebug() << "Error deleting cocktail: " << query.lastError();
-    }
-
-    // Delete ingredients
-    QSqlQuery ingredientQuery(db);
-    ingredientQuery.prepare("DELETE FROM CocktailIngredients WHERE cocktail_id = :id");
-    ingredientQuery.bindValue(":id", id);
-
-    if (!ingredientQuery.exec()) {
-        qDebug() << "Error deleting ingredients: " << ingredientQuery.lastError();
+        Logger::LogError("Error deleting cocktail: " + query.lastError().text().toStdString());
     }
 
     loadCocktailsIntoCache();
 }
 
-void CocktailRepository::editCocktail(const int id, const QString &name, const QStringList &ingredients) const
+void CocktailRepository::editCocktail(const QString &uuid, const QString &name, const QStringList &ingredients) const
 {
     QSqlDatabase db = dbManager->database();
     if (!validateDatabase(db)) {
@@ -178,29 +184,86 @@ void CocktailRepository::editCocktail(const int id, const QString &name, const Q
     }
 
     QSqlQuery query(db);
-    query.prepare("UPDATE Cocktails SET name = :name WHERE id = :id");
+    query.prepare("UPDATE Cocktails SET name = :name WHERE uuid = :uuid");
     query.bindValue(":name", name);
-    query.bindValue(":id", id);
+    query.bindValue(":uuid", uuid);
 
     if (!query.exec()) {
-        qDebug() << "Error editing cocktail: " << query.lastError();
+        Logger::LogError("Error editing cocktail: " + query.lastError().text().toStdString());
+        return;
     }
 
-    // Delete existing ingredients
     QSqlQuery deleteIngredientsQuery(db);
-    deleteIngredientsQuery.prepare("DELETE FROM CocktailIngredients WHERE cocktail_id = :id");
-    deleteIngredientsQuery.bindValue(":id", id);
+    deleteIngredientsQuery.prepare("DELETE FROM CocktailIngredients WHERE cocktail_uuid = :uuid");
+    deleteIngredientsQuery.bindValue(":uuid", uuid);
 
     if (!deleteIngredientsQuery.exec()) {
-        qDebug() << "Error deleting existing ingredients: " << deleteIngredientsQuery.lastError();
+        Logger::LogError("Error deleting existing ingredients: " + deleteIngredientsQuery.lastError().text().toStdString());
+        return;
     }
 
-    // Insert new ingredients
     for (const QString &ingredient : ingredients) {
         if (ensureIngredientExists(db, ingredient)) {
-            insertCocktailIngredient(db, id, ingredient);
+            QSqlQuery insertIngredientQuery(db);
+            insertIngredientQuery.prepare(R"(
+                INSERT INTO CocktailIngredients (cocktail_uuid, ingredient_id)
+                SELECT :uuid, id FROM Ingredients WHERE name = :name
+            )");
+            insertIngredientQuery.bindValue(":uuid", uuid);
+            insertIngredientQuery.bindValue(":name", ingredient);
+
+            if (!insertIngredientQuery.exec()) {
+                Logger::LogError("Error inserting ingredient: " + insertIngredientQuery.lastError().text().toStdString());
+            }
         }
     }
 
     loadCocktailsIntoCache();
+}
+
+QJsonArray CocktailRepository::exportAsJson() const
+{
+    QJsonArray cocktailsArray;
+
+    for (const QSharedPointer<Cocktail> &cocktail : m_cachedCocktails) {
+        QJsonObject cocktailObject;
+        cocktailObject["uuid"] = cocktail->getUuid();
+        cocktailObject["name"] = cocktail->getName();
+
+        QJsonArray ingredientsArray;
+        for (const QString &ingredient : cocktail->getIngredients()) {
+            ingredientsArray.append(ingredient);
+        }
+        cocktailObject["ingredients"] = ingredientsArray;
+
+        cocktailsArray.append(cocktailObject);
+    }
+
+    return cocktailsArray;
+}
+
+void CocktailRepository::import(const QJsonArray &jsonArray)
+{
+    for (const QJsonValue &value : jsonArray) {
+        if (!value.isObject()) {
+            continue;
+        }
+
+        QJsonObject cocktailObject = value.toObject();
+        QString uuid = cocktailObject["uuid"].toString();
+        QString name = cocktailObject["name"].toString();
+        QJsonArray ingredientsArray = cocktailObject["ingredients"].toArray();
+
+        QStringList ingredients;
+        for (const QJsonValue &ingredientValue : ingredientsArray) {
+            ingredients.append(ingredientValue.toString());
+        }
+
+        QSharedPointer<Cocktail> existingCocktail = getCocktailByUuid(uuid);
+        if (existingCocktail) {
+            editCocktail(uuid, name, ingredients);
+        } else {
+            addCocktail(uuid, name, ingredients);
+        }
+    }
 }

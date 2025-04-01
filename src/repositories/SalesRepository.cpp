@@ -19,6 +19,11 @@ SalesRepository::SalesRepository(QSharedPointer<DatabaseManager> dbManager, QObj
 void SalesRepository::saveSale(const Sale &sale)
 {
     QSqlDatabase db = m_databaseManager->database();
+    if (!db.isOpen()) {
+        Logger::LogError("Database is not open. Cannot save sale.");
+        return;
+    }
+
     QSqlQuery query(db);
 
     query.prepare("INSERT INTO Sales (timestamp, payment_method, price_per_cocktail, total_price, returned_cups) "
@@ -36,13 +41,16 @@ void SalesRepository::saveSale(const Sale &sale)
     int saleId = query.lastInsertId().toInt();
 
     for (const SaleDetail &detail : sale.getDetails()) {
-        query.prepare("INSERT INTO SalesDetails (sale_id, cocktail_id, quantity) "
-                      "VALUES (:sale_id, :cocktail_id, :quantity)");
-        query.bindValue(":sale_id", saleId);
-        query.bindValue(":cocktail_id", detail.getCocktailId());
-        query.bindValue(":quantity", detail.getQuantity());
-        if (!query.exec()) {
-            Logger::LogError("Failed to save sale detail: " + query.lastError().text().toStdString());
+        QSqlQuery detailQuery(db);
+        detailQuery.prepare(R"(
+            INSERT INTO SalesDetails (sale_id, cocktail_uuid, quantity)
+            VALUES (:sale_id, :cocktail_uuid, :quantity)
+        )");
+        detailQuery.bindValue(":sale_id", saleId);
+        detailQuery.bindValue(":cocktail_uuid", detail.getCocktailUuid());
+        detailQuery.bindValue(":quantity", detail.getQuantity());
+        if (!detailQuery.exec()) {
+            Logger::LogError("Failed to save sale detail: " + detailQuery.lastError().text().toStdString());
         }
     }
 
@@ -50,11 +58,13 @@ void SalesRepository::saveSale(const Sale &sale)
         if (!discount) {
             continue;
         }
-        query.prepare("INSERT INTO SalesDiscounts (sale_id, discount_id, quantity) "
-                      "VALUES (:sale_id, :discount_id, :quantity)");
+        query.prepare(R"(
+            INSERT INTO SalesDiscounts (sale_id, discount_uuid, quantity)
+            VALUES (:sale_id, :discount_uuid, :quantity)
+        )");
         query.bindValue(":sale_id", saleId);
-        query.bindValue(":discount_id", discount->getId());
-        query.bindValue(":quantity", sale.getDiscountQuantity(discount->getId()));
+        query.bindValue(":discount_uuid", discount->getUuid());
+        query.bindValue(":quantity", sale.getDiscountQuantity(discount->getUuid()));
         if (!query.exec()) {
             Logger::LogError("Failed to save sale discount: " + query.lastError().text().toStdString());
         }
@@ -85,7 +95,7 @@ QList<StatisticsData> SalesRepository::getSalesData(const QString &startDate, co
                SUM(Sales.total_price) AS totalPrice
         FROM Sales
         INNER JOIN SalesDetails ON Sales.id = SalesDetails.sale_id
-        INNER JOIN Cocktails ON SalesDetails.cocktail_id = Cocktails.id
+        INNER JOIN Cocktails ON SalesDetails.cocktail_uuid = Cocktails.uuid
         WHERE Sales.timestamp BETWEEN :startDate AND :endDate
         GROUP BY Cocktails.name, Sales.price_per_cocktail
         ORDER BY quantitySold DESC
