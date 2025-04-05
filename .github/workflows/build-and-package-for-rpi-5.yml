@@ -31,6 +31,11 @@ jobs:
           cd ~/rpi
           wget http://download.qt.io/archive/qt/${QT_VERSION:0:4}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz
           tar xfv qt-everywhere-src-${QT_VERSION}.tar.xz
+          
+          # Apply patch to fix missing <limits> include
+          sed -i '1i#include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/include/QtCore/../../src/corelib/global/qfloat16.h
+          sed -i '1i#include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/include/QtCore/../../src/corelib/global/qendian.h
+
           cp -R qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabi-g++ qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++
           sed -i -e 's/arm-linux-gnueabi-/aarch64-linux-gnu-/g' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++/qmake.conf
           cd ~/rpi/build
