@@ -15,14 +15,6 @@ jobs:
       - name: Set up CMake
         uses: lukka/get-cmake@latest
 
-      - name: Install dependencies (Linux)
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '5.15.2'
-          host: 'linux'
-          target: 'linux'
-          arch: 'aarch64'
-
       - name: Install SQLite (Linux)
         run: |
           sudo apt-get update
@@ -30,6 +22,21 @@ jobs:
 
       - name: Install Compiler
         run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu ninja-build
+
+      - name: compile qt for arm64
+        env:
+          QT_VERSION: 5.15.2
+        run: |
+          mkdir -p ~/rpi/{build,tools,sysroot/usr,sysroot/opt}
+          cd ~/rpi
+          wget http://download.qt.io/archive/qt/${QT_VERSION:0:4}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz
+          tar xfv qt-everywhere-src-${QT_VERSION}.tar.xz
+          cp -R qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabi-g++ qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++
+          sed -i -e 's/arm-linux-gnueabi-/aarch64-linux-gnu-/g' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++/qmake.conf
+          cd ~/rpi/build
+          ../qt-everywhere-src-${QT_VERSION}/configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=aarch64-linux-gnu- -sysroot ~/rpi/sysroot -prefix /usr/local/qt${QT_VERSION} -extprefix ~/rpi/qt${QT_VERSION} -opensource -confirm-license -skip qtscript -skip qtwayland -skip qtwebengine -nomake tests -make libs -pkg-config -no-use-gold-linker -v -recheck
+          make -j$(nproc)
+          make install
 
       - name: Configure CMake
         run: |
