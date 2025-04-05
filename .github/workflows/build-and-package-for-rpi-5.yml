@@ -33,11 +33,13 @@ jobs:
           tar xfv qt-everywhere-src-${QT_VERSION}.tar.xz
           cp -R qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabi-g++ qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++
           sed -i -e 's/arm-linux-gnueabi-/arm-linux-gnueabihf-/g' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/linux-arm-gnueabihf-g++/qmake.conf
+          # Add missing <limits> header
+          find qt-everywhere-src-${QT_VERSION} -type f -name "*.h" -exec sed -i '/#include <QtGlobal>/a #include <limits>' {} +
           cd ~/rpi/tools
           sudo wget https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/arm-linux-gnueabihf/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf.tar.xz
           tar xfv gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf.tar.xz
           cd ~/rpi/build
-          ../qt-everywhere-src-${QT_VERSION}/configure -release -opengl es2  -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=~/rpi/tools/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -extprefix ~/rpi/qt5.15 -opensource -confirm-license -skip qtscript -skip qtwayland -skip qtwebengine -nomake tests -make libs -pkg-config -no-use-gold-linker -v -recheck
+          ../qt-everywhere-src-${QT_VERSION}/configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=~/rpi/tools/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -extprefix ~/rpi/qt5.15 -opensource -confirm-license -skip qtscript -skip qtwayland -skip qtwebengine -nomake tests -nomake examples -make libs -pkg-config -no-use-gold-linker -v -recheck
           make -j$(nproc)
           make install
 
