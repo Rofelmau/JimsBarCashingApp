@@ -34,9 +34,9 @@ jobs:
           # Forcefully prepend <limits> to problematic files
           sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qfloat16.h
           sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qendian.h
-          # Clean build environment
+          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/text/qbytearraymatcher.h
+          # Configure and build
           cd qt-everywhere-src-${QT_VERSION}
-          make clean || true
           ./configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=/usr/bin/aarch64-linux-gnu- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -opensource -confirm-license -nomake tests -nomake examples -make libs -pkg-config -no-use-gold-linker
           make -j$(nproc)
           make install
