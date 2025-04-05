@@ -31,10 +31,12 @@ jobs:
           cd ~/rpi
           wget http://download.qt.io/archive/qt/${QT_VERSION:0:4}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz
           tar xvf qt-everywhere-src-${QT_VERSION}.tar.xz
-          # Explicitly add <limits> to specific files to resolve numeric_limits errors
-          sed -i '/#include <QtGlobal>/a #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qfloat16.h
-          sed -i '/#include <QtGlobal>/a #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qendian.h
+          # Forcefully prepend <limits> to problematic files
+          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qfloat16.h
+          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qendian.h
+          # Clean build environment
           cd qt-everywhere-src-${QT_VERSION}
+          make clean || true
           ./configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=/usr/bin/aarch64-linux-gnu- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -opensource -confirm-license -nomake tests -nomake examples -make libs -pkg-config -no-use-gold-linker
           make -j$(nproc)
           make install
