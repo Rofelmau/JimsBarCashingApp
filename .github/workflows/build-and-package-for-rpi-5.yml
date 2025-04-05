@@ -35,6 +35,9 @@ jobs:
           sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qfloat16.h
           sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qendian.h
           sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/text/qbytearraymatcher.h
+          # Remove invalid compiler flags from mkspecs
+          sed -i '/-mfpu=crypto-neon-fp-armv8/d' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
+          sed -i '/-mfloat-abi=hard/d' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
           # Configure and build
           cd qt-everywhere-src-${QT_VERSION}
           ./configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=/usr/bin/aarch64-linux-gnu- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -opensource -confirm-license -nomake tests -nomake examples -make libs -pkg-config -no-use-gold-linker
