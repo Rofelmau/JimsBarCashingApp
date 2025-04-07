@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build Application for arm64
+    name: Build Application
     runs-on: ubuntu-latest
 
     container:
@@ -17,9 +17,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Environment and Install Tools
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Install sqlite3
         run: |
-          export PATH="/opt/Qt-arm64-5.15.2/bin:$PATH"
           apt-get update
           apt-get install -y sqlite3
 
@@ -27,16 +31,11 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=/root/builder/toolchain.cmake \
-            -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
-            -DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
-            2>&1 | tee ../cmake_config_log.txt
+          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
           make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
-      - name: Verify Output
-        run: file build/src/MyProject
+      - name: Show Build Directory (Debug)
+        run: ls -la build
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
