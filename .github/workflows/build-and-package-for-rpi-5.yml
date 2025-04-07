@@ -17,6 +17,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install sqlite3
+        run: |
+          apt-get update
+          apt-get install -y sqlite3
+
       - name: Configure and Build with CMake
         run: |
           mkdir -p build

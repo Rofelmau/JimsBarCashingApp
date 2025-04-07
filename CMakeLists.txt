@@ -1,8 +1,15 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(MyProject)
 
 set(CMAKE_CXX_STANDARD 17)
+
+# Check for sqlite3 CLI tool
+find_program(SQLITE3_EXECUTABLE sqlite3)
+
+if(NOT SQLITE3_EXECUTABLE)
+  message(FATAL_ERROR "The sqlite3 command-line tool was not found. Please install it before building.")
+endif()
 
 # Add subdirectories
 add_subdirectory(src)
@@ -17,8 +24,8 @@ configure_file(${CMAKE_SOURCE_DIR}/src/database/data.sql ${CMAKE_BINARY_DIR}/dat
 
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/cocktails.db
-    COMMAND sqlite3 ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/schema.sql
-    COMMAND sqlite3 ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/data.sql
+    COMMAND ${SQLITE3_EXECUTABLE} ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/schema.sql
+    COMMAND ${SQLITE3_EXECUTABLE} ${CMAKE_BINARY_DIR}/cocktails.db < ${CMAKE_BINARY_DIR}/data.sql
     DEPENDS ${CMAKE_SOURCE_DIR}/src/database/schema.sql ${CMAKE_SOURCE_DIR}/src/database/data.sql
     COMMENT "Creating and populating the database"
 )
