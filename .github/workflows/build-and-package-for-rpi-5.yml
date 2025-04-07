@@ -23,12 +23,13 @@ jobs:
       options: --platform linux/arm64
 
     steps:
-      - name: Validate Docker Container Platform
-        run: |
-          uname -m
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Validate Docker Container Platform
+        run: |
+          uname -m
 
       - name: Install sqlite3
         run: |
