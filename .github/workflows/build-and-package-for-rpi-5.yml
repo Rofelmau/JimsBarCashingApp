@@ -10,32 +10,58 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout the Code
+      # 1. Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       # 2. Set up Docker Container
-      - name: Set up Docker Container
-        run: |
-          docker pull carlonluca/qt-dev:5.15.2
+      - name: Pull Docker Image
+        run: docker pull carlonluca/qt-dev:5.15.2
 
-      # 3. Install SQLite3 (inside the Docker container)
-      - name: Prepare Dependencies
+      # 3. Install SQLite3 within Docker
+      - name: Install Dependencies (SQLite3)
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
             carlonluca/qt-dev:5.15.2 \
             bash -c "apt-get update && apt-get install -y sqlite3 libsqlite3-dev"
 
-      # 4. Configure and Build Project with CMake
-      - name: Build with CMake
+      # 4. Configure and Build the Project
+      - name: Configure and Build with CMake
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
             carlonluca/qt-dev:5.15.2 \
-            bash -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make"
+            bash -c "
+              mkdir -p build &&
+              cd build &&
+              cmake .. -DCMAKE_BUILD_TYPE=Release &&
+              make -j$(nproc) VERBOSE=1 &&
+              ls -la &&
+              cd .. &&
+              ls -la
+            "
 
-      # 5. Store Build Artifacts
+      # 5. Upload Build Logs (in case there's an error)
+      - name: Save Docker Logs
+        if: failure()
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+            carlonluca/qt-dev:5.15.2 \
+            bash -c "
+              mkdir -p build &&
+              cd build &&
+              cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../build_logs.txt &&
+              make -j$(nproc) VERBOSE=1 2>&1 | tee -a ../build_logs.txt
+            "
+      - name: Upload Build Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Logs
+          path: build_logs.txt
+
+      # 6. Upload Build Artifacts
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: QtApplication-RaspberryPi
-          path: build/
+          name: MyProject-RaspberryPi
+          path: build/MyProject
