@@ -1,4 +1,4 @@
-name: Build Qt Application for Raspberry Pi 5 (arm64)
+name: Build Qt Application for Raspberry Pi 5
 
 on:
   push:
@@ -7,48 +7,47 @@ on:
 
 jobs:
   build:
-    name: Build Application for ARM64
+    name: Build Application for arm64
     runs-on: ubuntu-latest
 
+    container:
+      image: carlonluca/qt-dev:5.15.2
+
     steps:
-      # Repository auschecken
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # QEMU-Emulation für ARM64 aktivieren
-      - name: Set QEMU for ARM64 Emulation
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: linux/arm64
-
-      # Docker-Image für Multiarchitektur-Build verwenden (arm64)
-      - name: Pull Multi-Platform Docker Image and Start Build
+      - name: Set Environment and Install Tools
         run: |
-          # Docker-Image für ARM64 explizit starten
-          docker run --rm --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace \
-            carlonluca/qt-dev:5.15.2 \
-            /bin/bash -c " \
-              apt-get update && apt-get install -y sqlite3 && \
-              mkdir -p build && cd build && \
-              cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)
-            "
+          export PATH="/opt/Qt-arm64-5.15.2/bin:$PATH"
+          apt-get update
+          apt-get install -y sqlite3
 
-      # Debuggen: Prüfe den Inhalt des Build-Verzeichnisses
-      - name: Check Build Directory
-        run: ls -la build || echo "Build directory is empty or unavailable"
+      - name: Configure and Build with CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=/root/builder/toolchain.cmake \
+            -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
+            2>&1 | tee ../cmake_config_log.txt
+          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
-      # Artefakte hochladen (Build-Produkt und Logs)
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyProject-RaspberryPi
-          path: build/src/MyProject
+      - name: Verify Output
+        run: file build/src/MyProject
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
         with:
           name: Build-Logs
           path: |
-            build/*.txt
+            cmake_config_log.txt
+            make_build_log.txt
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyProject-RaspberryPi
+          path: build/src/MyProject
