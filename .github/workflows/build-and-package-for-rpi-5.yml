@@ -9,38 +9,23 @@ jobs:
   build:
     name: Build Application
     runs-on: ubuntu-latest
+
+    container:
+      image: carlonluca/qt-dev:5.15.2
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Pull Docker Image
-        run: docker pull carlonluca/qt-dev:5.15.2
-
-      - name: Test Docker Write Access
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            --user $(id -u):$(id -g) \
-            carlonluca/qt-dev:5.15.2 \
-            bash -c "echo 'Docker write test' > /workspace/docker_test_file && ls -la /workspace"
-
       - name: Configure and Build with CMake
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            --user $(id -u):$(id -g) \
-            carlonluca/qt-dev:5.15.2 \
-            bash -c "
-              mkdir -p build &&
-              cd build &&
-              cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee /workspace/cmake_config_log.txt &&
-              make -j$(nproc) 2>&1 | tee /workspace/make_build_log.txt
-            "
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
+          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
       - name: Show Build Directory (Debug)
-        run: ls -la ${{ github.workspace }}/build
+        run: ls -la build
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
