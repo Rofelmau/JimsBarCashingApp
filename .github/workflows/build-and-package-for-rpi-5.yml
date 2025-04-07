@@ -1,4 +1,4 @@
-name: Build for Raspberry Pi 5 (ARM64)
+name: Build Qt Application for Raspberry Pi 5
 
 on:
   push:
@@ -7,55 +7,35 @@ on:
 
 jobs:
   build:
+    name: Build Application
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      # 1. Checkout the Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up CMake
-        uses: lukka/get-cmake@latest
-
-      - name: Install SQLite (Linux)
+      # 2. Set up Docker Container
+      - name: Set up Docker Container
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libsqlite3-dev
+          docker pull carlonluca/qt-dev:5.15.2
 
-      - name: Install Compiler
-        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu ninja-build
-
-      - name: compile qt for arm64
-        env:
-          QT_VERSION: 5.15.0
+      # 3. Install SQLite3 (inside the Docker container)
+      - name: Prepare Dependencies
         run: |
-          mkdir -p ~/rpi/{build,tools,sysroot}
-          cd ~/rpi
-          wget http://download.qt.io/archive/qt/${QT_VERSION:0:4}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz
-          tar xvf qt-everywhere-src-${QT_VERSION}.tar.xz
-          # Forcefully prepend <limits> to problematic files
-          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qfloat16.h
-          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/global/qendian.h
-          sed -i '1i #include <limits>' qt-everywhere-src-${QT_VERSION}/qtbase/src/corelib/text/qbytearraymatcher.h
-          # Remove invalid compiler flags from mkspecs
-          sed -i '/-mfpu=crypto-neon-fp-armv8/d' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
-          sed -i '/-mfloat-abi=hard/d' qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
-          # Explicitly set QMAKE_CFLAGS and QMAKE_CXXFLAGS to avoid invalid flags
-          echo 'QMAKE_CFLAGS = -march=armv8-a' >> qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
-          echo 'QMAKE_CXXFLAGS = -march=armv8-a' >> qt-everywhere-src-${QT_VERSION}/qtbase/mkspecs/devices/linux-rasp-pi4-v3d-g++/qmake.conf
-          # Configure and build
-          cd qt-everywhere-src-${QT_VERSION}
-          ./configure -release -opengl es2 -eglfs -device linux-rasp-pi4-v3d-g++ -device-option CROSS_COMPILE=/usr/bin/aarch64-linux-gnu- -sysroot ~/rpi/sysroot -prefix /usr/local/qt5.15 -opensource -confirm-license -nomake tests -nomake examples -make libs -pkg-config -no-use-gold-linker
-          make -j$(nproc)
-          make install
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+            carlonluca/qt-dev:5.15.2 \
+            bash -c "apt-get update && apt-get install -y sqlite3 libsqlite3-dev"
 
-      - name: Configure CMake
+      # 4. Configure and Build Project with CMake
+      - name: Build with CMake
         run: |
-          cmake -B build -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -G Ninja
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+            carlonluca/qt-dev:5.15.2 \
+            bash -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make"
 
-      - name: Build project
-        run: cmake --build build --config Release
-
-      - name: Upload artifact
+      # 5. Store Build Artifacts
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpi5-build
+          name: QtApplication-RaspberryPi
           path: build/
