@@ -13,15 +13,21 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/arm64
+          platforms: arm64
 
-      - name: Checkout Repository
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Build inside ARM64 Container
+      - name: Check QEMU
+        run: ls -l /proc/sys/fs/binfmt_misc
+
+      - name: Run build inside ARM64 container
         run: |
           docker run --rm --platform linux/arm64 \
-            -v "$(pwd)":/workspace \
+            -v ${{ github.workspace }}:/workspace \
             -w /workspace \
             carlonluca/qt-dev:5.15.2 \
             bash -c "\
@@ -32,8 +38,8 @@ jobs:
               make -j$(nproc)
             "
 
-      - name: Upload Build Artifacts
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MyProject-RaspberryPi
+          name: QtBuild
           path: build/src/MyProject
