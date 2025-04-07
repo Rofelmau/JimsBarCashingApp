@@ -3,7 +3,7 @@ name: Build Qt Application for Raspberry Pi 5
 on:
   push:
     branches:
-      - '**' # Trigger on all branches
+      - '**'
 
 jobs:
   build:
@@ -18,13 +18,19 @@ jobs:
 
       - name: Test Docker Write Access
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            --user $(id -u):$(id -g) \
             carlonluca/qt-dev:5.15.2 \
             bash -c "echo 'Docker write test' > /workspace/docker_test_file && ls -la /workspace"
 
       - name: Configure and Build with CMake
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            --user $(id -u):$(id -g) \
             carlonluca/qt-dev:5.15.2 \
             bash -c "
               mkdir -p build &&
@@ -32,6 +38,9 @@ jobs:
               cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee /workspace/cmake_config_log.txt &&
               make -j$(nproc) 2>&1 | tee /workspace/make_build_log.txt
             "
+
+      - name: Show Build Directory (Debug)
+        run: ls -la ${{ github.workspace }}/build
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
