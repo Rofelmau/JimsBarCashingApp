@@ -10,22 +10,18 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     steps:
-      # 1. Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Set up Docker Container
       - name: Pull Docker Image
         run: docker pull carlonluca/qt-dev:5.15.2
 
-      # 3. Install SQLite3 within Docker
-      - name: Install Dependencies (SQLite3)
+      - name: Test Docker Write Access
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
             carlonluca/qt-dev:5.15.2 \
-            bash -c "apt-get update && apt-get install -y sqlite3 libsqlite3-dev"
+            bash -c "echo 'Docker write test' > /workspace/docker_test_file && ls -la /workspace"
 
-      # 4. Configure and Build the Project
       - name: Configure and Build with CMake
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
@@ -33,33 +29,18 @@ jobs:
             bash -c "
               mkdir -p build &&
               cd build &&
-              cmake .. -DCMAKE_BUILD_TYPE=Release &&
-              make -j$(nproc) VERBOSE=1 &&
-              ls -la &&
-              cd .. &&
-              ls -la
+              cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee /workspace/cmake_config_log.txt &&
+              make -j$(nproc) 2>&1 | tee /workspace/make_build_log.txt
             "
 
-      # 5. Upload Build Logs (in case there's an error)
-      - name: Save Docker Logs
-        if: failure()
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
-            carlonluca/qt-dev:5.15.2 \
-            bash -c "
-              mkdir -p build &&
-              cd build &&
-              cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../build_logs.txt &&
-              make -j$(nproc) VERBOSE=1 2>&1 | tee -a ../build_logs.txt
-            "
-      - name: Upload Build Logs
-        if: failure()
+      - name: Upload Logs
         uses: actions/upload-artifact@v4
         with:
           name: Build-Logs
-          path: build_logs.txt
+          path: |
+            cmake_config_log.txt
+            make_build_log.txt
 
-      # 6. Upload Build Artifacts
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
