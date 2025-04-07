@@ -7,49 +7,46 @@ on:
 
 jobs:
   build:
-    name: Build Application
+    name: Build Application for arm64
     runs-on: ubuntu-latest
 
-    container:
-      image: carlonluca/qt-dev:5.15.2
-
     steps:
-      - name: Set up QEMU for ARM emulation
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
+      # Repository auschecken
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install sqlite3
+      # Docker Buildx einrichten für Cross-Architektur-Builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # QEMU-Emulation für ARM64 aktivieren
+      - name: Set QEMU for ARM64 Emulation
         run: |
-          apt-get update
-          apt-get install -y sqlite3
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-      - name: Configure and Build with CMake
+      # Docker-Image für ARM64 laden und vorbereiten
+      - name: Pull Multi-Platform Docker Image and Start Build
         run: |
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
-          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
+          # Docker-Image für arm64 explizit starten
+          docker run --rm --platform linux/arm64 -v $(pwd):/workspace -w /workspace carlonluca/qt-dev:5.15.2 /bin/bash -c "
+          # sqlite3, cmake, und make installieren falls notwendig
+          apt-get update && apt-get install -y sqlite3 && \
+          mkdir -p build && cd build && \
+          cmake .. -DCMAKE_BUILD_TYPE=Release && \
+          make -j$(nproc)
+          "
 
-      - name: Show Build Directory (Debug)
-        run: ls -la build
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build-Logs
-          path: |
-            cmake_config_log.txt
-            make_build_log.txt
-
+      # Bau-Artefakte hochladen
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: MyProject-RaspberryPi
           path: build/src/MyProject
+
+      # Log-Dateien hochladen
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Logs
+          path: |
+            build/*.txt
