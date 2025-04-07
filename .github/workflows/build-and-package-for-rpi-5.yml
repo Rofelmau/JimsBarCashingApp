@@ -6,53 +6,34 @@ on:
       - '**'
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/arm64
+          platforms: all
 
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-
-    container:
-      image: carlonluca/qt-dev:5.15.2
-      options: --platform linux/arm64
-
-    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Validate Docker Container Platform
+      - name: Pull arm64 container and run build
         run: |
-          uname -m
-
-      - name: Install sqlite3
-        run: |
-          apt-get update
-          apt-get install -y sqlite3
-
-      - name: Configure and Build with CMake
-        run: |
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
-          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
-
-      - name: Show Build Directory (Debug)
-        run: ls -la build
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build-Logs
-          path: |
-            cmake_config_log.txt
-            make_build_log.txt
+          docker run --rm --platform linux/arm64 \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            carlonluca/qt-dev:5.15.2 \
+            bash -c "
+              uname -m && \
+              apt-get update && apt-get install -y sqlite3 && \
+              mkdir -p build && cd build && \
+              cmake .. -DCMAKE_BUILD_TYPE=Release && \
+              make -j$(nproc)
+            "
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
