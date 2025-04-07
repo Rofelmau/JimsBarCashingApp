@@ -26,16 +26,19 @@ jobs:
 
       - name: Run build inside ARM64 container
         run: |
-          docker run --rm --platform linux/arm64 \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
+          docker run \
+            --rm \
+            -v $(pwd):/${{ github.workspace }} \
+            -w ${{ github.workspace }} \
+            --platform linux/arm64 \
             carlonluca/qt-dev:5.15.2 \
-            
-            apt-get update && \
-            apt-get install -y sqlite3 && \
-            mkdir -p build && cd build && \
-            cmake .. -DCMAKE_BUILD_TYPE=Release && \
-            make -j$(nproc)
+            uname -a
+        
+        #   apt-get update && \
+        #    apt-get install -y sqlite3 && \
+        #    mkdir -p build && cd build && \
+        #    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+        #    make -j$(nproc)
             
 
       - name: Upload Artifact
