@@ -29,8 +29,7 @@ jobs:
             --load \
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
-          RUN apt-get update && apt-get install -y sqlite3 coreutils bash
-          SHELL ["/bin/bash", "-c"]
+          RUN apt-get update && apt-get install -y sqlite3
           EOF
 
       - name: Run cmake and make
