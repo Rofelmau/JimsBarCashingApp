@@ -17,7 +17,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Build Tools
+      - name: Debug Qt Environment
+        run: |
+          echo "Checking MOC binary..."
+          file /opt/Qt-arm64-5.15.2/bin/moc
+          ldd /opt/Qt-arm64-5.15.2/bin/moc
+          /opt/Qt-arm64-5.15.2/bin/moc --version
+
+      - name: Check Environment Variables
+        run: |
+          echo "PATH: $PATH"
+          echo "QT_SELECT: $QT_SELECT"
+          echo "Qt paths:"
+          ls -la /opt/Qt-arm64-5.15.2/bin
+
+      - name: Install Build Tools and Qt5
         run: |
           apt-get update
           apt-get install -y build-essential cmake ninja-build gcc g++ sqlite3
@@ -26,22 +40,5 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
-          ninja -j$(nproc) 2>&1 | tee ../ninja_build_log.txt
-
-      - name: Show Build Directory (Debug)
-        run: ls -la build
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build-Logs
-          path: |
-            cmake_config_log.txt
-            ninja_build_log.txt
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyProject-RaspberryPi
-          path: build/src/MyProject
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
+          ninja -j$(nproc)
