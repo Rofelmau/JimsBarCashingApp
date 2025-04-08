@@ -10,17 +10,12 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
 
-    container:
-      image: carlonluca/qt-dev:5.15.2
-
     steps:
       - name: Configure QEMU for ARM64
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: linux/arm64
-
-      - name: Configure Docker BuildX
-        uses: docker/setup-buildx-action@v2
+          image: carlonluca/qt-dev:5.15.2
+          platforms: arm64
 
       - name: Checkout Repository
         uses: actions/checkout@v4

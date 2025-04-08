@@ -1,9 +1,8 @@
-# Start vom minimalen qt-dev Image
 FROM docker.io/carlonluca/qt-dev:5.15.2
 
-# Füge bash, sh und sqlite3 hinzu
-RUN apt-get update && apt-get install -y bash dash sqlite3 && apt-get clean
+RUN apt-get update && apt-get install -y \
+    bash sqlite3 \
+ && apt-get clean
 
-# Setze optional Qt PATH
 ENV QT_DIR=/opt/Qt-arm64-5.15.2
 ENV PATH=$QT_DIR/bin:$PATH
