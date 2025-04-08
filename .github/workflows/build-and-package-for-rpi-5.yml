@@ -30,10 +30,10 @@ jobs:
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
           
-          # Install SQLite
+          # Install SQLite (falls benötigt)
           RUN apt-get update && apt-get install -y sqlite3
 
-          # Create a build folder
+          # Erstelle notwendige Verzeichnisse
           RUN mkdir -p /workspace/build
           EOF
 
@@ -50,8 +50,7 @@ jobs:
           docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
-            -w /workspace/build \
-            custom-qt-image cmake -DCMAKE_BUILD_TYPE=Release ..
+            custom-qt-image cmake -DCMAKE_BUILD_TYPE=Release -S /workspace -B /workspace/build
 
       - name: Run make to compile the project
         run: |
