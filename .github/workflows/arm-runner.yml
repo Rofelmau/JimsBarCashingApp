@@ -1,0 +1,44 @@
+name: Build app on arm runner
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-24.04-arm
+
+    container:
+      image: carlonluca/qt-dev:5.15.2
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install sqlite3
+        run: |
+          apt-get update
+          apt-get install -y sqlite3
+      - name: Configure and Build with CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
+          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
+      - name: Show Build Directory (Debug)
+        run: ls -la build
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Logs
+          path: |
+            cmake_config_log.txt
+            make_build_log.txt
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyProject-RaspberryPi
+          path: build/src/MyProject
