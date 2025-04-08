@@ -20,7 +20,7 @@ jobs:
       - name: Install Build Tools
         run: |
           apt-get update
-          apt-get install -y build-essential cmake ninja-build gcc g++
+          apt-get install -y build-essential cmake ninja-build gcc g++ sqlite3
 
       - name: Configure and Build with CMake
         run: |
