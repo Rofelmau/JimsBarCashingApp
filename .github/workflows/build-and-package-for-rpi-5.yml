@@ -7,71 +7,51 @@ on:
 
 jobs:
   build:
+    name: Build Application
     runs-on: ubuntu-latest
 
+    container:
+      image: carlonluca/qt-dev:5.15.2
+
     steps:
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Configure QEMU for ARM64
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: linux/arm64
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Configure Docker BuildX
+        uses: docker/setup-buildx-action@v2
 
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build custom Qt image
+      - name: Install sqlite3
         run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            -t custom-qt-image \
-            --load \
-            - <<EOF
-          FROM carlonluca/qt-dev:5.15.2
+          apt-get update
+          apt-get install -y sqlite3
 
-          RUN apt-get update && \
-              apt-get install -y \
-              build-essential ninja-build wget git sqlite3 python3 gcc g++
-
-          # Replace CMake with a fresh version
-          RUN apt-get purge --remove -y cmake && \
-              wget https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0-linux-aarch64.sh && \
-              chmod +x cmake-3.22.0-linux-aarch64.sh && \
-              ./cmake-3.22.0-linux-aarch64.sh --skip-license --prefix=/usr && \
-              rm -f cmake-3.22.0-linux-aarch64.sh
-
-          RUN mkdir -p /workspace/build
-          EOF
-
-      - name: Verify CMake and environment
+      - name: Build Application for ARM64
+        env:
+          ARCH: arm64
         run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            custom-qt-image which cmake
-          docker run --rm \
-            --platform linux/arm64 \
-            custom-qt-image cmake --version
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=${ARCH} 2>&1 | tee ../cmake_config_log.txt
+          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
-      - name: Debug project structure
-        run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            custom-qt-image ls -la /workspace
+      - name: Show Build Directory (Debug)
+        run: ls -la build
 
-      - name: Configure project with CMake
-        run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace/build \
-            custom-qt-image cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain.cmake -DCMAKE_BUILD_TYPE=Release --trace-expand ..
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Logs
+          path: |
+            cmake_config_log.txt
+            make_build_log.txt
 
-      - name: Build the project with Make
-        run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace/build \
-            custom-qt-image make -j$(nproc)
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyProject-RaspberryPi
+          path: build/src/MyProject
