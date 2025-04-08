@@ -21,14 +21,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug mounted files
-        run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace \
-            custom-qt-image ls -la /workspace
-
       - name: Build custom Qt image
         run: |
           docker buildx build \
@@ -44,6 +36,14 @@ jobs:
           # Create a build folder
           RUN mkdir -p /workspace/build
           EOF
+
+      - name: Debug mounted files
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            custom-qt-image ls -la /workspace
 
       - name: Run cmake to configure the project
         run: |
