@@ -12,6 +12,7 @@ jobs:
 
     container:
       image: carlonluca/qt-dev:5.15.2
+      options: --platform linux/arm64
 
     steps:
       - name: Checkout Repository

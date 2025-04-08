@@ -23,13 +23,17 @@ jobs:
             apt-get update
             apt-get install -y sqlite3 qt5-qmake qtbase5-dev qtchooser qtbase5-dev-tools
           run: |
-            # Set the correct PATH for moc
+            # Setze den Pfad für ARM Qt-Bibliotheken
             export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
+            export QT_LIBRARY_PATH=/opt/Qt-arm64-5.15.2/lib:$QT_LIBRARY_PATH
+            export LD_LIBRARY_PATH=/opt/Qt-arm64-5.15.2/lib:$LD_LIBRARY_PATH
 
-            # Check if moc is available in the PATH
+            # Überprüfe, ob die ARM-Version von moc verwendet wird
             which moc
+            echo "QT_LIBRARY_PATH: $QT_LIBRARY_PATH"
+            echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 
-            # Build the project
+            # Build-Prozess
             export ARCH=aarch64
             mkdir -p build
             cd build
