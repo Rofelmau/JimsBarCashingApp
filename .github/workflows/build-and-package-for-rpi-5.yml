@@ -30,46 +30,43 @@ jobs:
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
 
-          # Install or update necessary tools
-          RUN apt-get update && apt-get install -y \
-              build-essential \
-              ninja-build \
-              wget \
-              git \
-              python3 \
-              sqlite3 \
-              gcc g++
+          RUN apt-get update && \
+              apt-get install -y \
+              build-essential ninja-build wget git sqlite3 python3 gcc g++
 
-          # Replace CMake with a known working version
+          # Replace CMake with a fresh version
           RUN apt-get purge --remove -y cmake && \
               wget https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0-linux-aarch64.sh && \
               chmod +x cmake-3.22.0-linux-aarch64.sh && \
-              ./cmake-3.22.0-linux-aarch64.sh --skip-license --prefix=/usr
+              ./cmake-3.22.0-linux-aarch64.sh --skip-license --prefix=/usr && \
+              rm -f cmake-3.22.0-linux-aarch64.sh
 
-          # Create build directory
           RUN mkdir -p /workspace/build
           EOF
 
-      - name: Verify CMake version
+      - name: Verify CMake and environment
         run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            custom-qt-image which cmake
           docker run --rm \
             --platform linux/arm64 \
             custom-qt-image cmake --version
 
-      - name: Debug files
+      - name: Debug project structure
         run: |
           docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             custom-qt-image ls -la /workspace
 
-      - name: Configure the project with CMake
+      - name: Configure project with CMake
         run: |
           docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace/build \
-            custom-qt-image cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
+            custom-qt-image cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain.cmake -DCMAKE_BUILD_TYPE=Release --trace-expand ..
 
       - name: Build the project with Make
         run: |
@@ -78,9 +75,3 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace/build \
             custom-qt-image make -j$(nproc)
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: QtBuild
-          path: build/
