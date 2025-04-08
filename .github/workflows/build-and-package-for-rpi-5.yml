@@ -36,18 +36,36 @@ jobs:
           RUN apt-get update && apt-get install -y sqlite3
           EOF
 
-      # 3. Run cmake im erweiterten Container (ARM64)
-      - name: Run cmake inside custom Qt container with SQLite3
+      # 3. Debug: Überprüfen, ob Dateien korrekt gemountet sind
+      - name: Debug mounted files
         run: |
           docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace \
             custom-qt-image \
-            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+            ls -la
 
-      # 4. Run make im erweiterten Container
-      - name: Run make inside custom Qt container with SQLite3
+      # 4. Sicherstellen, dass CMakeLists.txt vorhanden ist
+      - name: Check for CMakeLists.txt
+        run: |
+          if [ ! -f $(pwd)/CMakeLists.txt ]; then
+            echo "ERROR: CMakeLists.txt not found!"
+            exit 1
+          fi
+
+      # 5. CMake ausführen
+      - name: Run cmake inside custom Qt container
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            custom-qt-image \
+            cmake -S /workspace -B /workspace/build -DCMAKE_BUILD_TYPE=Release
+
+      # 6. Make ausführen
+      - name: Run make inside custom Qt container
         run: |
           docker run --rm \
             --platform linux/arm64 \
