@@ -17,16 +17,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install sqlite3
+      - name: Install Build Tools
         run: |
           apt-get update
-          apt-get install -y sqlite3
+          apt-get install -y build-essential cmake ninja-build gcc g++
+
       - name: Configure and Build with CMake
         run: |
           mkdir -p build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
-          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release 2>&1 | tee ../cmake_config_log.txt
+          ninja -j$(nproc) 2>&1 | tee ../ninja_build_log.txt
+
       - name: Show Build Directory (Debug)
         run: ls -la build
 
@@ -36,7 +38,8 @@ jobs:
           name: Build-Logs
           path: |
             cmake_config_log.txt
-            make_build_log.txt
+            ninja_build_log.txt
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
