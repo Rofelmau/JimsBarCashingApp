@@ -32,7 +32,7 @@ jobs:
             -w ${{ github.workspace }} \
             --platform linux/arm64 \
             carlonluca/qt-dev:5.15.2 \
-            apt-get update && apt-get install -y sqlite3 && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)
+            bash -c "apt-get update && apt-get install -y sqlite3 && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j\$(nproc)"
         
         #   apt-get update && \
         #    apt-get install -y sqlite3 && \
