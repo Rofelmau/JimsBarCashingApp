@@ -18,11 +18,18 @@ jobs:
         uses: uraimo/run-on-arch-action@v3.0.0
         with:
           arch: aarch64
-          base_image: --platform=linux/arm64 carlonluca/qt-dev:5.15.2
+          base_image: carlonluca/qt-dev:5.15.2
           install: |
             apt-get update
-            apt-get install -y sqlite3
+            apt-get install -y sqlite3 qt5-qmake qtbase5-dev qtchooser qtbase5-dev-tools
           run: |
+            # Set the correct PATH for moc
+            export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
+
+            # Check if moc is available in the PATH
+            which moc
+
+            # Build the project
             export ARCH=aarch64
             mkdir -p build
             cd build
