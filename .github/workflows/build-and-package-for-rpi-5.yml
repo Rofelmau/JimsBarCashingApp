@@ -30,6 +30,7 @@ jobs:
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
           RUN apt-get update && apt-get install -y sqlite3
+          RUN mkdir -p build
           EOF
 
       - name: Run cmake and make
@@ -39,7 +40,6 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace \
             custom-qt-image \
-            mkdir -p build
             cd build
             cmake -DCMAKE_BUILD_TYPE=Release ..
             make -j$(nproc)
