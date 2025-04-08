@@ -24,28 +24,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 4. Docker Container für den Build erstellen
-      - name: Build custom Qt image
+      # 2. Build erweitertes Custom-Qt-Image mit `sqlite3`
+      - name: Build custom Qt image with SQLite3
         run: |
           docker buildx build \
             --platform linux/arm64 \
-            -t my-qt-image:arm64 \
+            -t custom-qt-image \
             --load \
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
           RUN apt-get update && apt-get install -y sqlite3
           EOF
 
-      # 5. Build im Container für ARM64-Plattform ausführen
-      - name: Run build inside custom Qt container (ARM64)
+      # 3. Run cmake im erweiterten Container (ARM64)
+      - name: Run cmake inside custom Qt container with SQLite3
         run: |
-          docker run \
-            --rm \
+          docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace \
-            my-qt-image:arm64 \
-            /bin/sh -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)"
+            custom-qt-image \
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      # 4. Run make im erweiterten Container
+      - name: Run make inside custom Qt container with SQLite3
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace/build \
+            custom-qt-image \
+            make -j$(nproc)
 
       # 6. Build-Resultat als Artefakt hochladen
       - name: Upload build artifact
