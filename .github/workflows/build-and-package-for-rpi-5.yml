@@ -24,8 +24,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Build erweitertes Custom-Qt-Image mit `sqlite3`
-      - name: Build custom Qt image with SQLite3
+      # 2. Docker-Image mit SQLite3 und coreutils erstellen
+      - name: Build custom Qt image with SQLite3 and coreutils
         run: |
           docker buildx build \
             --platform linux/arm64 \
@@ -33,10 +33,10 @@ jobs:
             --load \
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
-          RUN apt-get update && apt-get install -y sqlite3 cmake
+          RUN apt-get update && apt-get install -y sqlite3 coreutils
           EOF
 
-      # 3. Debugging der gemounteten Dateien
+      # 3. Debugging von gemounteten Dateien
       - name: Debug mounted files
         run: |
           docker run --rm \
@@ -46,11 +46,12 @@ jobs:
             custom-qt-image \
             ls -la
 
-      # 4. Sicherstellen, dass das Build-Verzeichnis existiert
+      # 4. Sicherstellen, dass das Build-Verzeichnis erstellt werden kann
       - name: Ensure build directory exists
         run: |
           docker run --rm \
             --platform linux/arm64 \
+            --entrypoint "" \
             -v $(pwd):/workspace \
             -w /workspace \
             custom-qt-image \
