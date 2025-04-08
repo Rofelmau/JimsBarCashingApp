@@ -21,6 +21,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug mounted files
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            custom-qt-image ls -la /workspace
+
       - name: Build custom Qt image
         run: |
           docker buildx build \
@@ -30,17 +38,14 @@ jobs:
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
           
-          # Install SQLite directly in the image
+          # Install SQLite
           RUN apt-get update && apt-get install -y sqlite3
 
-          # Create the working directories directly in the image
+          # Create a build folder
           RUN mkdir -p /workspace/build
-          
-          # Set work directory for future commands
-          WORKDIR /workspace
           EOF
 
-      - name: Run cmake and make using single docker run
+      - name: Run cmake to configure the project
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -48,14 +53,14 @@ jobs:
             -w /workspace/build \
             custom-qt-image cmake -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Run make
+      - name: Run make to compile the project
         run: |
           docker run --rm \
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace/build \
             custom-qt-image make -j$(nproc)
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
