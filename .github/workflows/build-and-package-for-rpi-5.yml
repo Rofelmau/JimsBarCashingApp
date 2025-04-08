@@ -21,7 +21,7 @@ jobs:
           base_image: carlonluca/qt-dev:5.15.2
           install: |
             apt-get update
-            apt-get install -y sqlite3 
+            apt-get install -y sqlite3-0:arm64
           run: |
             # Setze den Pfad für ARM Qt-Bibliotheken, falls nicht bereits gesetzt
             export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
