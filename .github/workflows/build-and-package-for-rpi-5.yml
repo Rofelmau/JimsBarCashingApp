@@ -33,13 +33,25 @@ jobs:
             echo "QT_LIBRARY_PATH: $QT_LIBRARY_PATH"
             echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 
-            # Build-Prozess
+            # Setze sicher, dass wir die richtige Architektur verwenden
             export ARCH=aarch64
+
+            # Bereinige den Build-Ordner, falls bereits etwas vorhanden ist
+            rm -rf build
             mkdir -p build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=${ARCH} 2>&1 | tee ../cmake_config_log.txt
-            make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
+            # Füge den Pfad zu Qt und der Toolchain hinzu, um sicherzustellen, dass die ARM-Version genutzt wird
+            cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_SYSTEM_NAME=Linux \
+              -DCMAKE_SYSTEM_PROCESSOR=${ARCH} \
+              -DCMAKE_PREFIX_PATH=/opt/Qt-arm64-5.15.2 \
+              -DCMAKE_FIND_ROOT_PATH=/opt/Qt-arm64-5.15.2 \
+              2>&1 | tee ../cmake_config_log.txt
+
+            # Baue das Projekt
+            make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
