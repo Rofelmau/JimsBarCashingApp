@@ -13,7 +13,7 @@ jobs:
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: arm64
+          platforms: linux/arm64
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -21,16 +21,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build custom Qt image with bash
+      - name: Build custom Qt image
         run: |
           docker buildx build \
             --platform linux/arm64 \
             -t custom-qt-image \
             --load \
             - <<EOF
+          # Use the minimal Qt build image
           FROM carlonluca/qt-dev:5.15.2
+
+          # Install minimal dependencies
           RUN apt-get update && apt-get install -y sqlite3
-          RUN mkdir -p build
+
+          # Create the build directory directly in the image
+          RUN mkdir -p /workspace/build
           EOF
 
       - name: Run cmake and make
