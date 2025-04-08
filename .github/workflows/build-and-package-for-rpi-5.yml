@@ -11,39 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure QEMU for ARM64
-        uses: docker/setup-qemu-action@v2
-        with:
-          image: carlonluca/qt-dev:5.15.2
-          platforms: arm64
-
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Install sqlite3
-        run: |
-          apt-get update
-          apt-get install -y sqlite3
-
-      - name: Build Application for ARM64
-        env:
-          ARCH: arm64
-        run: |
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=${ARCH} 2>&1 | tee ../cmake_config_log.txt
-          make -j$(nproc) 2>&1 | tee ../make_build_log.txt
-
-      - name: Show Build Directory (Debug)
-        run: ls -la build
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
+      
+      - name: Build in arm64 container
+        uses: uraimo/run-on-arch-action@v3.0.0
         with:
-          name: Build-Logs
-          path: |
-            cmake_config_log.txt
-            make_build_log.txt
+          arch: aarch64
+          base_image: carlonluca/qt-dev:5.15.2
+          install: |
+            apt-get update
+            apt-get install -y sqlite3
+          run: |
+            mkdir -p build
+            cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=${ARCH} 2>&1 | tee ../cmake_config_log.txt
+            make -j$(nproc) 2>&1 | tee ../make_build_log.txt
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
