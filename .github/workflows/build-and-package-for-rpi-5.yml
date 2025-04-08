@@ -24,15 +24,22 @@ jobs:
       - name: Check QEMU
         run: ls -l /proc/sys/fs/binfmt_misc
 
-      - name: Run build inside ARM64 container
+      - name: Build custom Qt image
+        run: |
+          docker build -t my-qt-image -<<EOF
+          FROM carlonluca/qt-dev:5.15.2
+          RUN apt-get update && apt-get install -y sqlite3 cmake make
+          EOF
+
+      - name: Run build inside custom Qt container
         run: |
           docker run \
             --rm \
             -v $(pwd):/${{ github.workspace }} \
             -w ${{ github.workspace }} \
             --platform linux/arm64 \
-            carlonluca/qt-dev:5.15.2 \
-            sh -c "apt-get update && apt-get install -y sqlite3 && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j\$(nproc)"
+            my-qt-image \
+            /bin/sh -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)"
         
         #   apt-get update && \
         #    apt-get install -y sqlite3 && \
