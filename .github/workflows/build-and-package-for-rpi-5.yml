@@ -7,37 +7,48 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    
-    container:
-      image: docker.io/carlonluca/qt-dev:5.15.2
-      options: --platform linux/arm64
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # 1. Setup QEMU für Multi-Arch-Unterstützung
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
         with:
-          submodules: recursive
-      
-      - name: Set up Qt environment
+          platforms: arm64
+
+      # 2. Docker Buildx konfigurieren
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Repository auschecken
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 4. Docker Container für den Build erstellen
+      - name: Build custom Qt image
         run: |
-          # Setze den PATH zu den Qt-Binärdateien im Container
-          export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
-          
-          # Wechsle ins Verzeichnis mit dem Code
-          cd ${GITHUB_WORKSPACE}
+          docker buildx build \
+            --platform linux/arm64 \
+            -t my-qt-image:arm64 \
+            --load \
+            - <<EOF
+          FROM carlonluca/qt-dev:5.15.2
+          RUN apt-get update && apt-get install -y sqlite3
+          EOF
 
-          # Erstelle das Build-Verzeichnis, falls es nicht existiert
-          mkdir -p build
-          cd build
+      # 5. Build im Container für ARM64-Plattform ausführen
+      - name: Run build inside custom Qt container (ARM64)
+        run: |
+          docker run \
+            --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            my-qt-image:arm64 \
+            /bin/sh -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)"
 
-          # Konfiguriere das Projekt mit cmake
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-
-          # Baue das Projekt mit make
-          make -j$(nproc)
-            
-      - name: Upload Artifact
+      # 6. Build-Resultat als Artefakt hochladen
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: QtBuild
