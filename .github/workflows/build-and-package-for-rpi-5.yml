@@ -7,51 +7,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    
+    container:
+      image: docker.io/carlonluca/qt-dev:5.15.2
+      options: --platform linux/arm64
 
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check QEMU
-        run: ls -l /proc/sys/fs/binfmt_misc
-
-      - name: Build custom Qt image
+          submodules: recursive
+      
+      - name: Set up Qt environment
         run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            -t my-qt-image \
-            --load \
-            - <<EOF
-          FROM carlonluca/qt-dev:5.15.2
-          RUN apt-get update && apt-get install -y sqlite3 cmake make
-          EOF
+          # Setze den PATH zu den Qt-Binärdateien im Container
+          export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
+          
+          # Wechsle ins Verzeichnis mit dem Code
+          cd ${GITHUB_WORKSPACE}
 
-      - name: Run build inside custom Qt container
-        run: |
-          docker run \
-            --rm \
-            -v $(pwd):/${{ github.workspace }} \
-            -w ${{ github.workspace }} \
-            --platform linux/arm64 \
-            my-qt-image \
-            /bin/sh -c "mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)"
-        
-        #   apt-get update && \
-        #    apt-get install -y sqlite3 && \
-        #    mkdir -p build && cd build && \
-        #    cmake .. -DCMAKE_BUILD_TYPE=Release && \
-        #    make -j$(nproc)
+          # Erstelle das Build-Verzeichnis, falls es nicht existiert
+          mkdir -p build
+          cd build
+
+          # Konfiguriere das Projekt mit cmake
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+          # Baue das Projekt mit make
+          make -j$(nproc)
             
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
