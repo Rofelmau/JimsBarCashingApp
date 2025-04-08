@@ -31,9 +31,6 @@ jobs:
             cat ../cmake_config_log.txt
             
             make -j$(nproc) 2>&1 | tee ../make_build_log.txt
-            
-            find build -type f
-
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
