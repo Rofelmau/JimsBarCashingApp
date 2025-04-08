@@ -30,28 +30,27 @@ jobs:
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
 
-          # Install essential dependencies
+          # Install or update necessary tools
           RUN apt-get update && apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build \
-            sqlite3 \
-            wget git
+              build-essential \
+              ninja-build \
+              wget \
+              git \
+              python3 \
+              sqlite3 \
+              gcc g++
 
-          # Optional: Manuelle Installation von neuer CMake-Version
-          RUN apt-get remove -y cmake && \
-              wget https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-linux-aarch64.sh && \
-              chmod +x cmake-3.23.3-linux-aarch64.sh && \
-              ./cmake-3.23.3-linux-aarch64.sh --skip-license --prefix=/usr
+          # Replace CMake with a known working version
+          RUN apt-get purge --remove -y cmake && \
+              wget https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0-linux-aarch64.sh && \
+              chmod +x cmake-3.22.0-linux-aarch64.sh && \
+              ./cmake-3.22.0-linux-aarch64.sh --skip-license --prefix=/usr
 
           # Create build directory
           RUN mkdir -p /workspace/build
-
-          ENV QT_QPA_PLATFORM offscreen
-          WORKDIR /workspace
           EOF
 
-      - name: Check CMake version
+      - name: Verify CMake version
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -64,7 +63,7 @@ jobs:
             -v $(pwd):/workspace \
             custom-qt-image ls -la /workspace
 
-      - name: Run cmake to configure the project
+      - name: Configure the project with CMake
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -72,7 +71,7 @@ jobs:
             -w /workspace/build \
             custom-qt-image cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Run make to compile the project
+      - name: Build the project with Make
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -84,4 +83,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: QtBuild
-          path: build/src/MyProject
+          path: build/

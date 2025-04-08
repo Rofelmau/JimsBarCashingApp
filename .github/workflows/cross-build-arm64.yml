@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: docker.io/carlonluca/qt-dev:5.15.2
+      image: carlonluca/qt-dev:5.15.2
       options: --platform linux/arm64
 
     steps:
