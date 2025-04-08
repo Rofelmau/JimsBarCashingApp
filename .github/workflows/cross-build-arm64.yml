@@ -34,7 +34,7 @@ jobs:
 
       - name: Build inside ARM64 Container
         run: |
-              docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/src -w /src qt-arm64:local /bin/toolchain.cmake \
+              docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/src -w /src qt-arm64:local \
               && export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH \
               && apt-get update && apt-get install -y sqlite3 \
               && mkdir -p build && cd build \
