@@ -18,7 +18,7 @@ jobs:
         uses: uraimo/run-on-arch-action@v3.0.0
         with:
           arch: aarch64
-          base_image: carlonluca/qt-dev:5.15.2
+          base_image: --platform=linux/arm64 carlonluca/qt-dev:5.15.2
           install: |
             apt-get update
             apt-get install -y sqlite3
