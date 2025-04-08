@@ -36,19 +36,28 @@ jobs:
             cmake \
             ninja-build \
             sqlite3 \
-            wget
+            wget git
+
+          # Optional: Manuelle Installation von neuer CMake-Version
+          RUN apt-get remove -y cmake && \
+              wget https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-linux-aarch64.sh && \
+              chmod +x cmake-3.23.3-linux-aarch64.sh && \
+              ./cmake-3.23.3-linux-aarch64.sh --skip-license --prefix=/usr
 
           # Create build directory
           RUN mkdir -p /workspace/build
+
+          ENV QT_QPA_PLATFORM offscreen
+          WORKDIR /workspace
           EOF
 
-      - name: Debug environment
+      - name: Check CMake version
         run: |
           docker run --rm \
             --platform linux/arm64 \
             custom-qt-image cmake --version
 
-      - name: Check mounted files
+      - name: Debug files
         run: |
           docker run --rm \
             --platform linux/arm64 \
@@ -61,7 +70,7 @@ jobs:
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace/build \
-            custom-qt-image cmake -DCMAKE_BUILD_TYPE=Release ..
+            custom-qt-image cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Run make to compile the project
         run: |

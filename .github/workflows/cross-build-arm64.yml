@@ -1,4 +1,4 @@
-name: Build Qt Application with carlonluca/qt-dev:5.15.2 (ARM64)
+name: Build Qt Application (ARM64) with carlonluca/qt-dev
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     container:
       image: docker.io/carlonluca/qt-dev:5.15.2
-      options: --platform linux/arm64  # Stellt sicher, dass ARM64 verwendet wird
+      options: --platform linux/arm64
 
     steps:
       - name: Checkout code
@@ -19,28 +19,20 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install bash and build dependencies
+      - name: Install sqlite3 (only dependency needed)
         run: |
-          # Installiere bash und andere notwendige Tools
-          apt-get update && apt-get install -y bash build-essential cmake sqlite3
+          apt-get update && apt-get install -y sqlite3
 
-      - name: Set up Qt environment
+      - name: Build with Qt
         run: |
-          # Setze den Pfad zu den Qt-Binärdateien
           export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
-          
-          # Wechsle ins Projektverzeichnis
-          cd ${GITHUB_WORKSPACE}
 
-          # Erstelle das Build-Verzeichnis und konfiguriere den Build mit CMake
           mkdir -p build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
-
-          # Baue das Projekt mit make
           make -j$(nproc)
-        
-      - name: Upload Artifact
+
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: QtBuild
