@@ -26,7 +26,7 @@ jobs:
             export ARCH=aarch64  # Setze ARCH explizit
             mkdir -p build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=$ARCH 2>&1 | tee ../cmake_config_log.txt
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/opt/Qt-arm64-5.15.2/mkspecs/features/toolchain.prf 2>&1 | tee ../cmake_config_log.txt
 
             cat ../cmake_config_log.txt
             
