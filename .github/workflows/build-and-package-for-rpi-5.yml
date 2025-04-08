@@ -26,7 +26,11 @@ jobs:
 
       - name: Build custom Qt image
         run: |
-          docker build -t my-qt-image -<<EOF
+          docker buildx build \
+            --platform linux/arm64 \
+            -t my-qt-image \
+            --load \
+            - <<EOF
           FROM carlonluca/qt-dev:5.15.2
           RUN apt-get update && apt-get install -y sqlite3 cmake make
           EOF
