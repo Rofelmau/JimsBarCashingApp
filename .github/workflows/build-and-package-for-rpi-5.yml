@@ -29,27 +29,31 @@ jobs:
             --load \
             - <<EOF
           FROM carlonluca/qt-dev:5.15.2
-          
+
           # Install essential dependencies
-          RUN apt-get update && apt-get install -y cmake sqlite3
+          RUN apt-get update && apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            sqlite3 \
+            wget
 
           # Create build directory
           RUN mkdir -p /workspace/build
           EOF
 
-      - name: Debug mounted files
-        run: |
-          docker run --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace \
-            custom-qt-image ls -la /workspace
-
-      - name: Check CMake version
+      - name: Debug environment
         run: |
           docker run --rm \
             --platform linux/arm64 \
             custom-qt-image cmake --version
+
+      - name: Check mounted files
+        run: |
+          docker run --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            custom-qt-image ls -la /workspace
 
       - name: Run cmake to configure the project
         run: |

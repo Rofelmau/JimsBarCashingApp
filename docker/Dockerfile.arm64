@@ -1,19 +1,17 @@
-# Dockerfile.arm64
-FROM ubuntu:20.04
+# Verwende das Base-Image von carlonluca mit Qt
+FROM docker.io/carlonluca/qt-dev:5.15.2
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Setze Umgebungsvariablen, um den Build-Prozess zu vereinfachen
+ENV QT_DIR=/opt/Qt-arm64-5.15.2
+ENV PATH=$QT_DIR/bin:$PATH
 
+# Installiere notwendige Systemabhängigkeiten für Qt5Location und andere Module
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    qt5-default \
-    qtbase5-dev \
-    qtdeclarative5-dev \
-    qttools5-dev-tools \
-    qttools5-dev \
-    sqlite3 \
-    libsqlite3-dev \
-    && apt-get clean
+    sqlite3
 
-# Optional: Ein User ohne root, falls du es brauchst
+# Füge Qt5Location als Systemmodul hinzu
+RUN ln -s $QT_DIR/plugins/installed_plugins/platforms /usr/lib/qt5/plugins/platforms
+
+# Stelle sicher, dass alle Umgebungsvariablen korrekt gesetzt sind
+ENV QML_IMPORT_PATH=$QT_DIR/qml
+ENV QML2_IMPORT_PATH=$QT_DIR/qml
