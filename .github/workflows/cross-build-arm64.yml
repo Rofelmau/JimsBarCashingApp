@@ -1,4 +1,4 @@
-name: Build Qt Application (ARM64) with carlonluca/qt-dev
+name: Build Qt App (ARM64) via Docker + QEMU
 
 on:
   push:
@@ -7,34 +7,40 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
-    container:
-      image: carlonluca/qt-dev:5.15.2
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ARM64 Docker Image (with Qt + sqlite3)
+        uses: docker/build-push-action@v5
         with:
-          submodules: recursive
+          context: .
+          file: ./docker/Dockerfile.arm64
+          platforms: linux/arm64
+          load: true
+          tags: qt-arm64:local
 
-      - name: Install sqlite3 (only dependency needed)
+      - name: Build inside ARM64 Container
         run: |
-          apt-get update && apt-get install -y sqlite3
-
-      - name: Build with Qt
-        run: |
-          export PATH=/opt/Qt-arm64-5.15.2/bin:$PATH
-
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-          make -j$(nproc)
+          docker run --rm -v ${{ github.workspace }}:/src -w /src qt-arm64:local bash -c "
+            export PATH=/opt/Qt-arm64-5.15.2/bin:\$PATH &&
+            apt-get update && apt-get install -y sqlite3 &&
+            mkdir -p build && cd build &&
+            cmake .. -DCMAKE_BUILD_TYPE=Release &&
+            make -j\$(nproc)
+          "
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4

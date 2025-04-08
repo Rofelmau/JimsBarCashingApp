@@ -1,17 +1,9 @@
-# Verwende das Base-Image von carlonluca mit Qt
+# Base image mit Qt 5.15.2 für ARM64
 FROM docker.io/carlonluca/qt-dev:5.15.2
 
-# Setze Umgebungsvariablen, um den Build-Prozess zu vereinfachen
+# Installiere nur das, was zusätzlich gebraucht wird
+RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
+
+# Optional: Qt Pfad setzen, falls später gebraucht
 ENV QT_DIR=/opt/Qt-arm64-5.15.2
 ENV PATH=$QT_DIR/bin:$PATH
-
-# Installiere notwendige Systemabhängigkeiten für Qt5Location und andere Module
-RUN apt-get update && apt-get install -y \
-    sqlite3
-
-# Füge Qt5Location als Systemmodul hinzu
-RUN ln -s $QT_DIR/plugins/installed_plugins/platforms /usr/lib/qt5/plugins/platforms
-
-# Stelle sicher, dass alle Umgebungsvariablen korrekt gesetzt sind
-ENV QML_IMPORT_PATH=$QT_DIR/qml
-ENV QML2_IMPORT_PATH=$QT_DIR/qml
