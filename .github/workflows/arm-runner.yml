@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build Application
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-22.04-arm64
 
     container:
       image: carlonluca/qt-dev:5.15.2
@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Check Architecture
+        run: |
+          uname -a
+          echo "ARCH: $(uname -m)"
 
       - name: Debug Qt Environment
         run: |
